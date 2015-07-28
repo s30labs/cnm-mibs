@@ -1,0 +1,410 @@
+-- *******************************************************************
+-- CISCO-LWAPP-AAA-MIB.my 
+-- November 2005, Devesh Pujari, Srinath Candadai
+--
+-- Copyright (c) 2005, 2006 by Cisco Systems, Inc.
+-- All rights reserved.
+-- *******************************************************************
+--
+CISCO-LWAPP-AAA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS 
+        MODULE-IDENTITY, 
+        OBJECT-TYPE,
+        Unsigned32,
+        Counter32,
+        Gauge32
+                FROM SNMPv2-SMI
+        MODULE-COMPLIANCE, 
+        OBJECT-GROUP
+                FROM SNMPv2-CONF
+        MacAddress,
+        DisplayString,
+        RowStatus,
+        TruthValue
+                FROM SNMPv2-TC 
+        ciscoMgmt
+                FROM CISCO-SMI
+        cLWlanIndex
+                FROM CISCO-LWAPP-WLAN-MIB
+        InetPortNumber,
+        InetAddressType,
+        InetAddress
+                FROM INET-ADDRESS-MIB;
+
+
+--********************************************************************
+--*  MODULE IDENTITY
+--********************************************************************
+
+ciscoLwappAAAMIB   MODULE-IDENTITY
+        LAST-UPDATED   "200604130000Z"
+        ORGANIZATION   "Cisco Systems Inc."
+        CONTACT-INFO  
+               "        Cisco Systems,
+                        Customer Service
+                Postal: 170 West Tasman Drive
+                        San Jose, CA  95134
+                        USA
+                   Tel: +1 800 553-NETS
+
+                 Email: cs-wnbu-snmp@cisco.com"
+
+        DESCRIPTION             
+                "This MIB is intended to be implemented on all those
+                devices operating as Central controllers, that
+                terminate the Light Weight Access Point Protocol
+                tunnel from Cisco Light-weight LWAPP Access Points.
+
+                Information provided by this MIB is used to manage
+                TACACS+ information on the controller.
+
+                The relationship between CC and the LWAPP APs
+                can be depicted as follows:
+
+                      +......+     +......+     +......+
+                      +      +     +      +     +      +
+                      +  CC  +     +  CC  +     +  CC  +
+                      +      +     +      +     +      +
+                      +......+     +......+     +......+
+                        ..            .             .
+                        ..            .             .
+                       .  .            .             .
+                      .    .            .             .
+                     .      .            .             .
+                    .        .            .             .
+                +......+ +......+     +......+      +......+
+                +      + +      +     +      +      +      +
+                +  AP  + +  AP  +     +  AP  +      +  AP  +
+                +      + +      +     +      +      +      +
+                +......+ +......+     +......+      +......+
+                           .              .             .
+                         .  .              .             .
+                        .    .              .             .
+                       .      .              .             .
+                      .        .              .             .
+                   +......+ +......+     +......+      +......+
+                   +      + +      +     +      +      +      +
+                   +  MN  + +  MN  +     +  MN  +      +  MN  +
+                   +      + +      +     +      +      +      +
+                   +......+ +......+     +......+      +......+
+
+
+                The LWAPP tunnel exists between the controller and
+                the APs.  The MNs communicate with the APs through
+                the protocol defined by the 802.11 standard.
+
+                LWAPP APs, upon bootup, discover and join one of the
+                controllers and the controller pushes the configuration,
+                that includes the WLAN parameters, to the LWAPP APs.
+                The APs then encapsulate all the 802.11 frames from
+                wireless clients inside LWAPP frames and forward
+                the LWAPP frames to the controller.
+
+                                   GLOSSARY
+
+                Access Point ( AP )
+
+                An entity that contains an 802.11 medium access
+                control ( MAC ) and physical layer ( PHY ) interface
+                and provides access to the distribution services via
+                the wireless medium for associated clients.  
+
+                LWAPP APs encapsulate all the 802.11 frames in
+                LWAPP frames and sends them to the controller to which
+                it is logically connected.
+
+                Gratuitous Probe Response (GPR)
+
+                The Gratuitous Probe Response feature aids in conserving
+                battery power of WLAN-enabled cell phones by providing
+                a high rate packet on the order of tens of milliseconds
+                such that these kind of phones can wake up and wait at
+                predefined intervals, to reduce battery power.  The 
+                GPR packet is transmitted from the AP at a predefined
+                time interval.
+                 
+
+                Light Weight Access Point Protocol ( LWAPP )
+
+                This is a generic protocol that defines the 
+                communication between the Access Points and the
+                Central Controller. 
+
+                Mobile Node ( MN )
+
+                A roaming 802.11 wireless device in a wireless
+                network associated with an access point. Mobile Node 
+                and client are used interchangeably. 
+
+                TU
+
+                A measurement of time in units of 1024 microseconds.
+
+                REFERENCE
+ 
+                [1] Wireless LAN Medium Access Control ( MAC ) and
+                Physical Layer ( PHY ) Specifications
+  
+                [2] Draft-obara-capwap-lwapp-00.txt, IETF Light 
+                Weight Access Point Protocol "
+        
+        REVISION      "200604130000Z"
+        DESCRIPTION
+                "Initial version of this MIB module. "
+        ::= { ciscoMgmt 598 } 
+        
+ciscoLwappAAAMIBNotifs  OBJECT IDENTIFIER      ::= { ciscoLwappAAAMIB 0 }
+ciscoLwappAAAMIBObjects OBJECT IDENTIFIER      ::= { ciscoLwappAAAMIB 1 }
+ciscoLwappAAAMIBConform OBJECT IDENTIFIER      ::= { ciscoLwappAAAMIB 2 }
+
+claConfigObjects OBJECT IDENTIFIER ::=  { ciscoLwappAAAMIBObjects 1 }
+claStatusObjects OBJECT IDENTIFIER ::=  { ciscoLwappAAAMIBObjects 2 }
+
+
+claWlanTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF ClaWlanEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "AAA client Table indexed by cLWlanIndex."
+    ::= { claConfigObjects 3 }
+
+claWlanEntry OBJECT-TYPE
+    SYNTAX ClaWlanEntry
+    MAX-ACCESS not-accessible
+    STATUS current
+    DESCRIPTION
+        "An entry in claWlanTable."
+    INDEX { cLWlanIndex }
+    ::= { claWlanTable 1 }
+
+ClaWlanEntry ::=
+    SEQUENCE {
+        claWlanAcctServerEnabled         INTEGER
+    }
+
+
+claWlanAcctServerEnabled OBJECT-TYPE
+        SYNTAX TruthValue 
+        MAX-ACCESS read-write
+        STATUS current
+        DESCRIPTION
+                "Indicates whether accounter server is enabled
+                 or disabled for this WLAN."
+    ::= { claWlanEntry 1 }
+
+--********************************************************************
+--*    Status objects
+--********************************************************************
+
+claRadiusServerTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF ClaRadiusServerEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "This table represents the information about the
+                 requests sent to the RADIUS servers.
+                 When a new request gets sent to the RADIUS server
+                 an entry gets added to this table. The agents
+                 maintains a circular queue which automatically
+                 gets overwritten once the queue is full."
+        ::= { claStatusObjects 1 }
+
+
+claRadiusServerEntry OBJECT-TYPE
+        SYNTAX     ClaRadiusServerEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+                "Each entry in this table provides information about
+                 a request that is sent to a RADIUS server.
+                 Each entry is uniquely identified by the
+                 request identifier."
+        INDEX   { claRadiusReqId }
+        ::= { claRadiusServerTable 1 }
+
+ClaRadiusServerEntry ::=
+        SEQUENCE {
+                claRadiusReqId                    Unsigned32,
+                claRadiusAddressType              InetAddressType,
+                claRadiusAddress                  InetAddress,
+                claRadiusPortNum                  InetPortNumber,
+                claRadiusWlanIdx                  Unsigned32,
+                claRadiusClientMacAddress         MacAddress,
+                claRadiusUserName                 DisplayString
+        }
+
+claRadiusReqId OBJECT-TYPE
+        SYNTAX     Unsigned32
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the request identifier of the
+              request sent to the RADIUS server."
+        ::= { claRadiusServerEntry 1 }
+
+claRadiusAddressType OBJECT-TYPE
+        SYNTAX     InetAddressType
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the address type for the RADIUS server. "
+        ::= { claRadiusServerEntry 2 }
+
+claRadiusAddress OBJECT-TYPE
+        SYNTAX     InetAddress
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the address of the RADIUS server."
+        ::= { claRadiusServerEntry 3 }
+
+claRadiusPortNum OBJECT-TYPE
+        SYNTAX     InetPortNumber
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the port number for the RADIUS
+              server. "
+        ::= { claRadiusServerEntry 4 }
+
+claRadiusWlanIdx OBJECT-TYPE
+        SYNTAX     Unsigned32 (1..17)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the WLAN index whether the RADIUS
+              server is activating and deactivating. "
+        ::= { claRadiusServerEntry 5 }
+
+claRadiusClientMacAddress OBJECT-TYPE
+        SYNTAX     MacAddress
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object indicates the client MAC address that sent the
+              request identified by the claRadiusReqId. "
+        ::= { claRadiusServerEntry 6 }
+
+claRadiusUserName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "This object identifies the user for whom the request
+              identified by the claRadiusReqId was sent."
+        ::= { claRadiusServerEntry 7 }
+
+
+--********************************************************************
+--*    NOTIFICATION TYPE objects
+--********************************************************************
+
+ciscoLwappAAARadiusServerGlobalActivated NOTIFICATION-TYPE
+        OBJECTS {
+                claRadiusAddressType,
+                claRadiusAddress,
+                claRadiusPortNum
+        }
+        STATUS current
+        DESCRIPTION
+                "This notification is sent by the agent when the
+                controller detects that the Radius server is 
+                activated in the global list. The radius server
+                is identified by the address (claRadiusAddress)
+                and port number (claRadiusPortNum)."
+        ::= { ciscoLwappAAAMIBNotifs 1 }
+
+
+ciscoLwappAAARadiusServerGlobalDeactivated NOTIFICATION-TYPE
+        OBJECTS {
+                claRadiusAddressType,
+                claRadiusAddress,
+                claRadiusPortNum
+        }
+        STATUS current
+        DESCRIPTION
+                "This notification is sent by the agent when the
+                controller detects that the Radius server is 
+                deactivated in the global list. The radius server
+                is identified by the address (claRadiusAddress)
+                and port number (claRadiusPortNum)."
+        ::= { ciscoLwappAAAMIBNotifs 2 }
+
+ciscoLwappAAARadiusServerWlanActivated NOTIFICATION-TYPE
+        OBJECTS {
+                claRadiusAddressType,
+                claRadiusAddress,
+                claRadiusPortNum,
+                claRadiusWlanIdx
+        }
+        STATUS current
+        DESCRIPTION
+                "This notification is sent by the agent when the
+                controller detects that the Radius server is 
+                activated on the WLAN. The radius server
+                is identified by the address (claRadiusAddress)
+                and port number (claRadiusPortNum)."
+        ::= { ciscoLwappAAAMIBNotifs 3 }
+
+
+ciscoLwappAAARadiusServerWlanDeactivated NOTIFICATION-TYPE
+        OBJECTS {
+                claRadiusAddressType,
+                claRadiusAddress,
+                claRadiusPortNum,
+                claRadiusWlanIdx
+        }
+        STATUS current
+        DESCRIPTION
+                "This notification is sent by the agent when the
+                controller detects that the Radius server is 
+                deactivated on the WLAN. The radius server
+                is identified by the address (claRadiusAddress)
+                and port number (claRadiusPortNum)."
+        ::= { ciscoLwappAAAMIBNotifs 4 }
+
+ciscoLwappAAARadiusReqTimedOut NOTIFICATION-TYPE
+        OBJECTS {
+                claRadiusAddressType,
+                claRadiusAddress,
+                claRadiusPortNum,
+                claRadiusClientMacAddress,
+                claRadiusUserName
+        }
+        STATUS current
+        DESCRIPTION
+                "This notification is sent by the agent when the
+                controller detects that the Radius server failed 
+                to respond to request from a client/user. The radius 
+                server is identified by the address (claRadiusAddress)
+                and port number (claRadiusPortNum)."
+        ::= { ciscoLwappAAAMIBNotifs 5 }
+
+
+--********************************************************************
+ciscoLwappAAAMIBCompliances OBJECT IDENTIFIER
+        ::= { ciscoLwappAAAMIBConform 1 }
+
+ciscoLwappAAAMIBGroups OBJECT IDENTIFIER
+        ::= { ciscoLwappAAAMIBConform 2 }
+
+
+--********************************************************************
+--ciscoLwappAAAMIBCompliance MODULE-COMPLIANCE
+--        STATUS     current 
+--        DESCRIPTION
+--                "The compliance statement for the SNMP entities that
+--                implement the ciscoLwappAAAMIB module. "
+--        MODULE MANDATORY-GROUPS {                
+--        }
+--        ::= { ciscoLwappAAAMIBCompliances 1 }
+
+
+--********************************************************************
+--*    Units of conformance  
+--********************************************************************
+
+END
+
