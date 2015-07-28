@@ -1,0 +1,5994 @@
+DX-CONFIG-MIB DEFINITIONS ::= BEGIN
+
+-- Title:       DX-CONFIG-MIB for SNMPv2
+-- Date:        September 02, 2004
+-- By:          Yogendra Singh <yogi@juniper.net>
+--
+-- Note: this MIB is Read-Only.
+-- 		Added Forwarder listen/target SSL config to the MIB.
+-- $Rl: DX-CONFIG-MIB.txt,v 1.55.2.3 2007/10/30 18:04:31 ksaqlain Exp $
+--
+
+IMPORTS MODULE-IDENTITY, OBJECT-TYPE, Integer32, IpAddress
+                FROM SNMPv2-SMI
+        DisplayString 
+                FROM SNMPv2-TC
+        juniperDX, dx  
+                FROM DX-MIB;
+
+---------------------------------------------------------------------------
+-- Config Sub-Section
+---------------------------------------------------------------------------
+
+dxConfig MODULE-IDENTITY
+        LAST-UPDATED "200508032326Z"
+        ORGANIZATION "Juniper Networks, Inc."
+        CONTACT-INFO 
+        "Contact: Juniper Networks Support
+         Web: www.juniper.net
+         Email: support@juniper.net
+         Phone: 1.888.JUNIPER (888-586-4737) (Toll Free)
+                1.408.745.2000 (Main)
+                1.408.745.2100 (Fax)
+         Postal: Juniper Networks Inc.,
+                1194 North Mathilda Avenue
+                Sunnyvale, California 94089-1206 
+                USA"
+    DESCRIPTION
+        "The configuration MIB module for DX product of
+         Juniper Networks, Inc.
+         Copyright 2003-2005 Redline Networks, Inc. All rights reserved.
+         Copyright 2005 Juniper Networks, Inc. All rights reserved."
+
+        REVISION	"200310131945Z"
+        DESCRIPTION
+        "1) Fixed syntax errors
+         2) Added OWA"
+
+        REVISION	"200305310035Z"
+        DESCRIPTION
+        "Initial Version"
+
+        ::= { dx 3 }
+
+
+---------------------------------------------------------------------------
+-- Config Admin Sub-Section
+---------------------------------------------------------------------------
+admin OBJECT IDENTIFIER ::= { dxConfig 1 }
+
+---------------------------------------------------------------------------
+-- Email
+---------------------------------------------------------------------------
+adminEmail OBJECT IDENTIFIER ::= { admin 1 }
+
+adminEmailServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The mail exchanger to use."
+        ::= { adminEmail 1 }
+
+adminEmailFromAddress  OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The From: line on outgoing emails."
+        ::= { adminEmail 2 }
+
+adminEmailDefaultToAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The default To: email address "
+        ::= { adminEmail 3 }
+
+
+---------------------------------------------------------------------------
+-- Admin Interface
+---------------------------------------------------------------------------
+adminInterface OBJECT IDENTIFIER ::= { admin 2 }
+
+adminInterfaceName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The ether/NIC interface name."
+        ::= { adminInterface 1 }
+
+adminInterfaceIPAddress  OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address on which all the admin services ( ssh/snmp/telnet...) will run."
+        ::= { adminInterface 2 }
+
+adminInterfaceNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Netmask  assigned to this interface."
+        ::= { adminInterface 3 }
+
+---------------------------------------------------------------------------
+-- Admin Log
+---------------------------------------------------------------------------
+adminLog OBJECT IDENTIFIER ::= { admin 3 }
+
+adminLogStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Admin log status ( enabled/disabled )."
+        ::= { adminLog 1 }
+
+adminLogEmailLevel  OBJECT-TYPE
+        SYNTAX     INTEGER { none(0), emerg(1), alert(2) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The admin log email level."
+        ::= { adminLog 2 }
+
+adminLogEmailToAddress1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The admin log email receiver address 1."
+        ::= { adminLog 3 }
+
+adminLogEmailToAddress2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The admin log email receiver address 2."
+        ::= { adminLog 4 }
+
+adminLogMemoryLevel OBJECT-TYPE
+        SYNTAX     INTEGER { none(0), emerg(1), alert(2) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The admin log memory level."
+        ::= { adminLog 5 }
+
+adminLogSysLogLevel OBJECT-TYPE
+        SYNTAX     INTEGER { none(0), emerg(1), alert(2) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The admin log syslog level."
+        ::= { adminLog 6 }
+
+adminLogApprulesMemoryLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for apprules logs sent to memory"
+        ::= { adminLog 7 }
+
+adminLogApprulesSyslogLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for apprules logs sent to syslog"
+        ::= { adminLog 8 }
+
+adminLogApprulesSyslogFacility OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog facility set for apprule logs"
+        ::= { adminLog 9 }
+
+adminLogAuditSyslogLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for audit logs sent to syslog"
+        ::= { adminLog 10 }
+
+adminLogAuditSyslogFacility OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog facility set for audit logs"
+        ::= { adminLog 11 }
+
+adminLogHealthMemoryLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for scriptable health logs sent to memory"
+        ::= { adminLog 12 }
+
+adminLogHealthSyslogLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for scriptable health logs sent to syslog"
+        ::= { adminLog 13 }
+
+adminLogHealthSyslogFacility OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog facility set for scriptable health logs"
+        ::= { adminLog 14 }
+
+adminLogSystemEmailLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for system logs sent via email"
+        ::= { adminLog 15 }
+
+adminLogSystemMemoryLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for system logs sent to memory"
+        ::= { adminLog 16 }
+
+adminLogSystemSyslogLevel OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The level set for system logs sent to syslog"
+        ::= { adminLog 17 }
+
+adminLogSystemSyslogFacility OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog facility set for system logs"
+        ::= { adminLog 18 }
+
+
+---------------------------------------------------------------------------
+-- Admin SNMP
+---------------------------------------------------------------------------
+adminSNMP OBJECT IDENTIFIER ::= { admin 4 }
+
+adminSnmpStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the SNMP Daemon is up(1) or down(0)."
+        ::= { adminSNMP 1 }
+
+adminSnmpCommunityName OBJECT-TYPE     -- This is also found in MIBII.snmp group
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of the (ReadOnly) SNMP Community."
+        ::= { adminSNMP 2 }
+
+adminSnmpCommunityAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the (ReadOnly) SNMP Community."
+        ::= { adminSNMP 3 }
+
+adminSnmpCommunityNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Netmask of the (ReadOnly) SNMP Community."
+        ::= { adminSNMP 4 }
+
+---------------------------------------------------------------------------
+-- Admin TFTP
+---------------------------------------------------------------------------
+adminTFTP OBJECT IDENTIFIER ::= { admin 5 }
+
+tftpServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TFTP server IP Address or host name."
+        ::= { adminTFTP 1 }
+
+---------------------------------------------------------------------------
+-- Admin Syslog
+---------------------------------------------------------------------------
+adminSyslog OBJECT IDENTIFIER ::= { admin 6 }
+
+adminSyslogHost1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog host server 1."
+        ::= { adminSyslog 1 }
+
+adminSyslogHost2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog host server 2."
+        ::= { adminSyslog 2 }
+
+adminSyslogLoggingFacility OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The syslog logging facility (LOG_LOCAL0/LOG_LOCAL1..)." 
+        ::= { adminSyslog 3 }
+
+---------------------------------------------------------------------------
+-- Admin Tcpdump
+---------------------------------------------------------------------------
+adminTcpdump OBJECT IDENTIFIER ::= { admin 7 }
+adminTcpdumpStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "Tcpdump is enabled or disabled."
+        ::= { adminTcpdump 1 }
+
+adminTcpdumpFileName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The remote filename for the tcpdump."
+        ::= { adminTcpdump 2 }
+
+adminTcpdumpSMTPServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The tcpdump sends the information using SMTP (Email)."
+        ::= { adminTcpdump 3 }
+
+adminTcpdumpTFTPServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The tcpdump sends the information using TFTP host."
+        ::= { adminTcpdump 4 }
+
+adminTcpdumpReceiver1Email OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tcpdump information recevier's email address."
+        ::= { adminTcpdump 5 }
+
+adminTcpdumpReceiver2Email OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tcpdump information recevier's email address."
+        ::= { adminTcpdump 6 }
+
+adminTcpdumpFileSystemSize OBJECT-TYPE
+        SYNTAX     INTEGER ( 0..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Sets size of filesytem allocated to tcpdumps (in MB)."
+        ::= { adminTcpdump 7 }
+
+---------------------------------------------------------------------------
+-- Admin Tsdump
+---------------------------------------------------------------------------
+adminTsdump OBJECT IDENTIFIER ::= { admin 8 }
+
+adminTsdumpStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Tsdump is enabled or disabled."
+        ::= { adminTsdump 1 }
+
+adminTsdumpFileName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The remote filename for the tsdump."
+        ::= { adminTsdump 2 }
+
+adminTsdumpSMTPServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tsdump sends the information using SMTP ( Email )."
+        ::= { adminTsdump 3 }
+
+adminTsdumpTFTPServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tsdump sends the information using TFTP."
+        ::= { adminTsdump 4 }
+
+adminTsdumpReceiver1Email OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tsdump information recevier's email address."
+        ::= { adminTsdump 5 }
+
+adminTsdumpReceiver2Email OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The tsdump information recevier's email address."
+        ::= { adminTsdump 6 }
+
+---------------------------------------------------------------------------
+-- Admin WebGUI
+---------------------------------------------------------------------------
+adminWebUI OBJECT IDENTIFIER ::= { admin 9 }
+
+adminWebUIStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the WebUI is enabled or disabled."
+        ::= { adminWebUI 1 }
+
+adminWebUIPort OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The port for the WebUI."
+        ::= { adminWebUI 2 }
+
+adminWebUISSLStatus OBJECT-TYPE
+        SYNTAX     INTEGER { down(0), up(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the WebUI SSL is enabled or disabled"
+        ::= { adminWebUI 3 }
+                
+adminWebUISessionExpireTime OBJECT-TYPE
+        SYNTAX     Integer32 (1..259199)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The WebUI session timeout."
+        ::= { adminWebUI 4 }
+
+---------------------------------------------------------------------------
+-- Config DNS Sub-Section
+---------------------------------------------------------------------------
+adminDNS OBJECT IDENTIFIER ::= { admin 10 }
+
+---------------------------------------------------------------------------
+-- DNS
+---------------------------------------------------------------------------
+adminDnsDomain OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The domain of the DNS services."
+        ::= { adminDNS 1 }
+
+adminDnsNameserver1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the DNS server #1."
+        ::= { adminDNS 2 }
+
+adminDnsNameserver2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the DNS server #2."
+        ::= { adminDNS 3 }
+
+adminDnsNameserver3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the DNS server #3."
+        ::= { adminDNS 4 }
+
+---------------------------------------------------------------------------
+-- Config NTP Sub-Section
+---------------------------------------------------------------------------
+adminNTP OBJECT IDENTIFIER ::= { admin 11 }
+
+---------------------------------------------------------------------------
+-- NTP
+---------------------------------------------------------------------------
+adminNtpStatus OBJECT-TYPE
+        SYNTAX     INTEGER { down(0), up(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the NTP listener is up(1) or down(0)."
+        ::= { adminNTP 1 }
+
+adminNtpServer1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the primary NTP Server."
+        ::= { adminNTP 2 }
+
+adminNtpServer2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the secondary NTP Server."
+        ::= { adminNTP 3 }
+
+adminNtpServer3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the tertiary NTP Server."
+        ::= { adminNTP 4 }
+
+---------------------------------------------------------------------------
+-- Admin SSH
+---------------------------------------------------------------------------
+adminSshStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the SSH listener is up(1) or down(0)."
+        ::= { admin 12 }
+
+---------------------------------------------------------------------------
+-- Admin Telnet
+---------------------------------------------------------------------------
+adminTelnetStatus  OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the telnet listener is up(1) or down(0)."
+        ::= { admin 13 }
+
+---------------------------------------------------------------------------
+-- Admin Upgrade
+---------------------------------------------------------------------------
+adminUpgrade OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The filename to use for upgrade."
+        ::= { admin 14 }
+
+---------------------------------------------------------------------------
+-- Custom IP Log Header (customiplogheader)
+---------------------------------------------------------------------------
+adminCustomIPLogHeaderHeader OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Header to insert into the HTTP Request to the Target
+             Servers to pass along the actual client IP Address."
+        ::= { admin 15 }
+
+---------------------------------------------------------------------------
+-- Admin Audit Log status
+---------------------------------------------------------------------------
+adminAuditStatus OBJECT-TYPE
+    SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Admin audit log enabled(1) or disabled(0)."
+        ::= { admin 16 }
+
+---------------------------------------------------------------------------
+-- Admin Cli SessionExpireTime
+---------------------------------------------------------------------------
+adminCliSessionExpireTime OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..259200 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cli session timeout."
+        ::= { admin 17 }
+
+
+---------------------------------------------------------------------------
+-- Admin Historical Stats service
+---------------------------------------------------------------------------
+adminHistStatsStatus  OBJECT-TYPE
+    	SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Admin historical stats collection enabled(1) or disabled(0)."
+        ::= { admin 18 }
+
+---------------------------------------------------------------------------
+-- More Admin SSH
+---------------------------------------------------------------------------
+adminSshV1Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the SSHv1 is enabled(1) or disabled(0)."
+        ::= { admin 19 }
+
+adminSshV2Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the SSHv2 is enabled(1) or disabled(0)."
+        ::= { admin 20 }
+
+---------------------------------------------------------------------------
+-- Cluster Configuration Table
+---------------------------------------------------------------------------
+clusterCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of configured clusters."
+        ::= { dxConfig 2 }
+
+clusterTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF ClusterEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing the clusters."
+        ::= { dxConfig 3 }
+
+clusterEntry OBJECT-TYPE
+        SYNTAX     ClusterEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the clusterTable."
+        INDEX      { clusterIndex }
+        ::= { clusterTable 1 }
+
+ClusterEntry ::=
+        SEQUENCE {
+            clusterIndex
+                Integer32,
+
+            clusterListenAddress
+                DisplayString,
+
+            clusterListenNetmask
+                DisplayString,
+
+            clusterListenPort
+                Integer32,
+
+            clusterListenSSLstatus
+                INTEGER,
+
+            clusterListenSSLcertfile
+                DisplayString,
+
+            clusterListenSSLkeyfile
+                DisplayString,
+
+            clusterListenSSLcipherSuite
+                INTEGER,
+
+            clusterListenSSLprotocol
+                INTEGER,
+
+            clusterTargetName
+                DisplayString,
+
+            clusterTargetServerCount
+                Integer32,
+
+            clusterTargetSSLstatus
+                INTEGER,
+
+            clusterTargetSSLcertfile
+                DisplayString,
+
+            clusterTargetSSLkeyfile
+                DisplayString,
+
+            clusterTargetSSLcipherSuite
+                INTEGER,
+
+            clusterTargetSSLprotocol
+                INTEGER,
+
+            clusterTargetSSLtimeout
+                Integer32,
+
+            clusterClientAuthentication 
+                INTEGER,
+
+            clusterBusyRedirect
+                DisplayString,
+
+            clusterLogStatus
+                INTEGER,
+
+            clusterLogHost
+                DisplayString,
+
+            clusterLogCombinedLogFormat
+                INTEGER,
+
+            clusterDSRStatus
+                INTEGER,
+
+            clusterStickyMethod
+                INTEGER,
+
+            clusterStickyCookieExpire
+                Integer32,
+
+            clusterStickyCIPTimeout
+                Integer32,
+
+            clusterStickyMask 
+                DisplayString,
+
+            clusterStickyCIPDistribution
+                INTEGER,
+
+            clusterHealthInterval 
+                Integer32,
+
+            clusterHealthResume 
+                Integer32,
+
+            clusterHealthDownRetry 
+                Integer32,
+
+            clusterHealthReturnCode 
+                Integer32,
+
+            clusterHealthSize 
+                Integer32,
+
+            clusterAdminStatus 
+                INTEGER,
+
+            clusterHealthString 
+                DisplayString,
+
+            clusterHealthUrlPath 
+                DisplayString,
+
+            clusterOperationalStatus 
+                INTEGER,
+
+            clusterConnectionBindingStatus 
+                INTEGER,
+
+            clusterConvert302ProtocolStatus 
+                INTEGER,
+
+            clusterName 
+                DisplayString,
+
+            clusterDesc 
+                DisplayString,
+
+            clusterAuthServerStatus 
+                INTEGER,
+
+            clusterAuthRealm 
+                DisplayString,
+
+            clusterAuthMsgText 
+                DisplayString,
+
+            clusterAuthServerMethod 
+                INTEGER,
+
+            clusterAuthServerProtocol 
+                INTEGER,
+
+            clusterAuthServer1IP 
+                DisplayString,
+
+            clusterAuthServer1Port 
+                Integer32,
+
+            clusterAuthServer2IP 
+                DisplayString,
+
+            clusterAuthServer2Port 
+                Integer32,
+
+            clusterAuthServerKey 
+                DisplayString,
+
+            clusterAuthServerTimeout 
+                Integer32,
+
+            clusterAuthServerRetries 
+                Integer32,
+
+            clusterAuthServerAudit 
+                INTEGER,
+
+            clusterOWAStatus
+                INTEGER,
+
+            clusterListenSSLephkeyfile
+                DisplayString,
+            
+            clusterLogFormat
+                DisplayString,
+
+            clusterLogDestination
+                INTEGER,
+
+            clusterTargetCompMode
+                DisplayString,
+
+            clusterTargetCompEncoding
+                INTEGER,
+
+            clusterStickyCookiePassHeader
+                INTEGER,
+
+            clusterHttpmethodConnect
+                INTEGER,
+
+            clusterHttpmethodExtended
+                INTEGER,
+
+            clusterHttpmethodWebdav
+                INTEGER,
+
+            clusterBalancePolicy
+                INTEGER,
+
+            clusterBalancePolicyUrlHashLen
+                INTEGER,
+
+            clusterLogPort
+                Integer32,
+
+            clusterLogBatchSize
+                Integer32,
+
+            clusterLogBatchAlarm1
+                DisplayString,
+
+            clusterLogBatchAlarm2
+                DisplayString,
+
+            clusterLogBatchAlarm3
+                DisplayString,
+
+            clusterLogBatchAlarmInterval
+                Integer32,
+
+            clusterLogBatchDestDir
+                DisplayString,
+
+            clusterLogBatchDestServer
+                DisplayString,
+
+            clusterLogBatchCompression
+                INTEGER,
+
+            clusterLogBatchUser
+                DisplayString,
+
+            clusterLogBatchScpPrivKey
+                DisplayString,
+
+            clusterLogBatchRetryInterval
+                Integer32,
+
+            clusterHealthConnectionInterval 
+                Integer32,
+
+            clusterHealthConnectionTimeout 
+                Integer32,
+
+            clusterListenQos 
+                INTEGER,
+
+            clusterListenQosIpPrecedence 
+                Integer32,
+
+            clusterListenQosDtrc 
+                INTEGER,
+
+            clusterListenQosDscpType 
+                INTEGER,
+
+            clusterListenQosDscpRaw 
+                Integer32,
+
+            clusterListenQosDscpClass 
+                Integer32,
+
+            clusterListenQosAssuredDp 
+                INTEGER,
+
+            clusterListenQosAssuredClass 
+                INTEGER,
+
+            clusterTargetQos 
+                INTEGER,
+
+            clusterTargetQosIpPrecedence 
+                Integer32,
+
+            clusterTargetQosDtrc 
+                INTEGER,
+
+            clusterTargetQosDscpType 
+                INTEGER,
+
+            clusterTargetQosDscpRaw 
+                Integer32,
+
+            clusterTargetQosDscpClass 
+                Integer32,
+
+            clusterTargetQosAssuredDp 
+                INTEGER,
+
+            clusterTargetQosAssuredClass 
+                INTEGER,
+
+			clusterCustomIpLogHeader
+				DisplayString,
+
+            clusterForwardClientCert
+                DisplayString,
+
+			clusterCompTextXml
+				DisplayString,
+
+			clusterCompTextXComponent
+				DisplayString,
+
+            clusterCompTextPlain
+                DisplayString,
+
+            clusterCompTextHtml
+                DisplayString,
+
+            clusterCompTextCss
+                DisplayString,
+
+            clusterCompShockwave
+                DisplayString,
+
+            clusterCompPolicy
+                DisplayString,
+
+            clusterCompOptimization
+                DisplayString,
+
+            clusterCompOctetstream
+                DisplayString,
+
+            clusterCompMsOffice
+                DisplayString,
+
+            clusterCompJavascript
+                DisplayString,
+
+            clusterCompHttp10
+                DisplayString,
+
+            clusterCompForce
+                DisplayString,
+
+            clusterCompFlushThreshold
+                DisplayString,
+
+            clusterCompCmtStatus
+                DisplayString,
+
+            clusterCompCmt1
+                DisplayString,
+
+            clusterCompCmt2
+                DisplayString,
+
+            clusterCompCmt3
+                DisplayString,
+
+            clusterCompBrowserSafari
+                DisplayString,
+
+            clusterCompBrowserOther
+                DisplayString,
+
+            clusterCompBrowserOpera
+                DisplayString,
+
+            clusterCompBrowserNS6
+                DisplayString,
+
+            clusterCompBrowserNS4
+                DisplayString,
+
+            clusterCompBrowserKonqueror
+                DisplayString,
+
+            clusterCompBrowserIEOther
+                DisplayString,
+
+            clusterCompBrowserIE7
+                DisplayString,
+
+            clusterCompBrowserIE6
+                DisplayString,
+
+            clusterCompBrowserIE55
+                DisplayString,
+
+            clusterCompBrowserIE51
+                DisplayString,
+
+            clusterCompBrowserIE50
+                DisplayString,
+
+            clusterCompBrowserIE4
+                DisplayString,
+
+            clusterComp2kPadding
+               DisplayString,
+
+			clusterfaddt
+				Integer32,
+
+			clusterfafcl
+				Integer32,
+
+			clusterfarbr
+				Integer32,
+
+			clusterfart
+				Integer32,
+
+			clusterfacsb
+				DisplayString,
+
+			clusterfacrb
+				DisplayString,
+
+			clusterfaeus
+				Integer32,
+
+			clusterfcuar
+				Integer32,
+
+			clusterfhrbl
+				Integer32,
+
+			clusterfhscc
+				Integer32,
+
+			clusterfh5
+				DisplayString,
+
+			clusterfhibh
+				DisplayString,
+
+			clusterfhpt
+				DisplayString,
+
+			clusterfhtc3
+				DisplayString,
+
+			clusterfhv
+				DisplayString,
+
+			clusterfhw
+				DisplayString,
+
+			clusterfhy
+				DisplayString,
+
+			clusterfhz
+				DisplayString,
+
+			clusterfkac
+				DisplayString,
+
+			clusterfkacrv0
+				DisplayString,
+
+			clusterfkacrv1
+				DisplayString,
+
+			clusterfkat
+				DisplayString,
+
+			clusterStickyCIPLeader
+				DisplayString,
+
+            clusterHealthTimeout
+                Integer32,
+
+            clusterSacompatStatus
+                INTEGER,
+            
+            clusterSacompatUrl1
+                DisplayString,
+
+            clusterSacompatUrl2
+                DisplayString,
+
+            clusterSacompatUrl3
+                DisplayString,
+
+            clusterAuthSSOStatus 
+                INTEGER,
+
+            clusterAuthSSODomain 
+                DisplayString,
+
+            clusterAuthSSOCookieName 
+                DisplayString,
+
+            clusterAuthSSOCookieExpire 
+                INTEGER,
+
+  			clusterfh4
+  				DisplayString,
+
+            clusterftckat 
+                DisplayString,
+
+            clusterfttkat 
+                DisplayString,
+
+			clusterfhmcl
+				DisplayString,
+
+            clusterListenSSLAutoChainStatus
+                INTEGER,
+
+            clusterListenSSLAutoChainRootCertStatus
+                INTEGER,
+
+            clusterTargetSSLAutoChainStatus
+                INTEGER,
+
+            clusterTargetSSLAutoChainRootCertStatus
+                INTEGER,
+
+            clusterfh9
+                DisplayString,
+
+			clusterCompPDF
+				DisplayString,
+
+			clusterCompSharePoint
+				DisplayString,
+
+            clusterStickyFailover
+                INTEGER,
+
+            clusterStickySoftPauseOverride
+                INTEGER,
+
+			clusterStickyCookieName,
+				DisplayString,
+
+  			clusterfh1
+  				DisplayString
+        }
+
+clusterIndex OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The Cluster Index"
+        ::= { clusterEntry 1 }
+
+clusterListenAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of this cluster."
+        ::= { clusterEntry 2 }
+
+clusterListenNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Netmask of this cluster."
+        ::= { clusterEntry 3 }
+
+clusterListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TCP Port to listen on for HTTP traffic to this cluster."
+        ::= { clusterEntry 4 }
+
+clusterListenSSLstatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This cluster to communicate using SSL or not."
+        ::= { clusterEntry 5 }
+
+clusterListenSSLcertfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL Certificate for this cluster."
+        ::= { clusterEntry 6 }
+
+clusterListenSSLkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL key for this cluster."
+        ::= { clusterEntry 7 }
+
+clusterListenSSLcipherSuite OBJECT-TYPE
+        SYNTAX     INTEGER { common(0), strong(1), export(2), all(3), file(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this cluster."
+        ::= { clusterEntry 8 }
+
+clusterListenSSLprotocol OBJECT-TYPE
+        SYNTAX     INTEGER { sslv2(0), sslv3(1), sslv23(2), tlsv1(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this cluster."
+        ::= { clusterEntry 9 }
+
+clusterTargetName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The target name for this cluster."
+        ::= { clusterEntry 10 }
+
+clusterTargetServerCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2048)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of Target Servers for this cluster."
+        ::= { clusterEntry 11 }
+
+clusterTargetSSLstatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This cluster to communicate with all its Target Server using SSL or not."
+        ::= { clusterEntry 12 }
+
+clusterTargetSSLcertfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL Certificate for communication with the Target Servers."
+        ::= { clusterEntry 13 }
+
+clusterTargetSSLkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL key for comminication with the Target Servers."
+        ::= { clusterEntry 14 }
+
+clusterTargetSSLcipherSuite OBJECT-TYPE
+        SYNTAX     INTEGER { common(0), strong(1), export(2), all(3), file(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for comminication with the Target Servers."
+        ::= { clusterEntry 15 }
+
+clusterTargetSSLprotocol OBJECT-TYPE
+        SYNTAX     INTEGER { sslv2(0), sslv3(1), sslv23(2), tlsv1(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL protocol to use for communication with the Target Servers."
+        ::= { clusterEntry 16 }
+
+clusterTargetSSLtimeout OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL timeout to use for communication with the Target Servers."
+        ::= { clusterEntry 17 }
+
+clusterClientAuthentication OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SSL client authentication is enabled(1)/disabled(0)."
+        ::= { clusterEntry 18 }
+
+clusterBusyRedirect OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The URL to redirect to when Target Servers for this cluster are busy."
+        ::= { clusterEntry 19 }
+
+clusterLogStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the HTTP traffic logging machanism is
+             enabled(1) or disabled(0) for this cluster."
+        ::= { clusterEntry 20 }
+
+clusterLogHost OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the HTTP traffic log host for this cluster."
+        ::= { clusterEntry 21 }
+
+clusterLogCombinedLogFormat OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     obsolete
+        DESCRIPTION
+            "Indicates whether the HTTP traffic logging machanism
+             should use 'Combined Log Format' for this cluster.  This has beed
+             obsoleted and the clusterLogFormat variable should be used."
+        ::= { clusterEntry 22 }
+
+clusterDSRStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether this cluster is configured for DSR mode"
+        ::= { clusterEntry 23 }
+
+clusterStickyMethod OBJECT-TYPE
+        SYNTAX     INTEGER { none(0), cookie(1), clientIP(2) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The method of 'sticky' this cluster is configured to use"
+        ::= { clusterEntry 24 }
+
+clusterStickyCookieExpire OBJECT-TYPE
+        SYNTAX     Integer32 (0..3000000)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Sticky Cookie expiration time"
+        ::= { clusterEntry 25 }
+
+clusterStickyCIPTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..43200)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Client IP sticky binding timeout"
+        ::= { clusterEntry 26 }
+
+clusterStickyMask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Sticky mask allows to mask portion of client IP and/or port."
+        ::= { clusterEntry 27 }
+
+clusterStickyCIPDistribution OBJECT-TYPE
+        SYNTAX     INTEGER { internet(0), intranet(1) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The hashing method for client IP sticky this cluster is configured to use."
+        ::= { clusterEntry 28 }
+
+clusterHealthInterval OBJECT-TYPE
+        SYNTAX     Integer32 (1..3600)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Health check request interval"
+        ::= { clusterEntry 29 }
+
+clusterHealthResume OBJECT-TYPE
+        SYNTAX     Integer32 (1..20)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The number of times the health check fail before declaring target server down."
+        ::= { clusterEntry 30 }
+
+clusterHealthDownRetry OBJECT-TYPE
+        SYNTAX     Integer32 (1..20)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The number of times the health check should be retried before its declared down."
+        ::= { clusterEntry 31 }
+
+clusterHealthReturnCode OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Expected return code in health check response."
+        ::= { clusterEntry 32 }
+
+clusterHealthSize OBJECT-TYPE
+        SYNTAX     Integer32 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Expected size of health check response."
+        ::= { clusterEntry 33 }
+
+clusterAdminStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether this target server is enabled/disabled."
+        ::= { clusterEntry 34 }
+
+
+clusterHealthString OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Expected string in the health check response."
+        ::= { clusterEntry 35 }
+
+clusterHealthUrlPath OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "URL path to be health checked."
+        ::= { clusterEntry 36 }
+
+clusterOperationalStatus OBJECT-TYPE
+        SYNTAX     INTEGER { down(0), up(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Current status of cluster on the basis of health check."
+        ::= { clusterEntry 37 }
+
+clusterConnectionBindingStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Connection binding is enabled(1)/disabled(0)."
+        ::= { clusterEntry 38 }
+
+clusterConvert302ProtocolStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates cluster's HTTP 302 protocol conversion status."
+        ::= { clusterEntry 39 }
+
+clusterName OBJECT-TYPE
+        SYNTAX     DisplayString 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Cluster name."   
+        ::= { clusterEntry 40 }
+
+clusterDesc OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Cluster description string."
+        ::= { clusterEntry 41 } 
+
+clusterAuthServerStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                   "Authentication enabled(1)/disabled(0) for cluster."
+        ::= { clusterEntry 42 }
+
+clusterAuthRealm OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication Realm."
+        ::= { clusterEntry 43 } 
+
+clusterAuthMsgText OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication response message text."
+        ::= { clusterEntry 44 } 
+
+clusterAuthServerMethod OBJECT-TYPE
+        SYNTAX     INTEGER { www(1), proxy(2) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                   "HTTP Authentication headers supported."
+        ::= { clusterEntry 45 }
+
+clusterAuthServerProtocol OBJECT-TYPE
+        SYNTAX     INTEGER { radius(1), ldap(2) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                   "Authentication protocol supported by authentication servers."
+        ::= { clusterEntry 46 }
+
+clusterAuthServer1IP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server 1 IP."
+        ::= { clusterEntry 47 } 
+
+
+clusterAuthServer1Port OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server 1 port."
+        ::= { clusterEntry 48 } 
+            
+
+clusterAuthServer2IP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server 2 IP."
+        ::= { clusterEntry 49 } 
+
+
+clusterAuthServer2Port OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server 2 port."
+        ::= { clusterEntry 50 } 
+            
+
+clusterAuthServerKey OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server secret key."
+        ::= { clusterEntry 51 } 
+
+clusterAuthServerTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server request timeout in seconds."
+        ::= { clusterEntry 52 } 
+            
+
+clusterAuthServerRetries OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                "Authentication server request retry count."
+        ::= { clusterEntry 53 } 
+
+clusterAuthServerAudit OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+                   "Auditing enabled(1)/disabled(0) for cluster."
+        ::= { clusterEntry 54 }
+
+clusterOWAStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether this cluster is configured for OWA"
+        ::= { clusterEntry 55 }
+            
+clusterListenSSLephkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL ephemeral key for this cluster."
+        ::= { clusterEntry 56 }
+
+clusterLogFormat OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the format used for HTTP traffic logging 
+             for this cluster."
+        ::= { clusterEntry 57 }
+
+clusterLogDestination OBJECT-TYPE
+        SYNTAX     INTEGER { syslog(0), batch(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the destination for HTTP traffic logging 
+             for this cluster."
+        ::= { clusterEntry 58 }
+
+clusterTargetCompMode OBJECT-TYPE
+        SYNTAX     DisplayString 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the target compression mode for this cluster."
+        ::= { clusterEntry 59 }
+
+clusterTargetCompEncoding OBJECT-TYPE
+        SYNTAX     INTEGER { standard(0), browser(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the target compression encoding to send 
+             for this cluster."
+        ::= { clusterEntry 60 }
+
+clusterStickyCookiePassHeader OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if the sticky cookie header should be passed to target server."
+        ::= { clusterEntry 61 }
+
+clusterHttpmethodConnect OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if the HTTP CONNECT request method is allowed
+            for this cluster."
+        ::= { clusterEntry 62 }
+
+clusterHttpmethodExtended OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if the HTTP extended request methods are allowed
+            for this cluster."
+        ::= { clusterEntry 63 }
+
+clusterHttpmethodWebdav OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if the HTTP WebDAV request methods are allowed
+            for this cluster."
+        ::= { clusterEntry 64 }
+
+clusterBalancePolicy OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                fewest-outstanding-requests(0),
+                round-robin(1),
+                weighted-round-robin(2),
+                url-hash(3)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the load balancing policy
+             being currently used by this cluster."
+        ::= { clusterEntry 65 }
+
+clusterBalancePolicyUrlHashLen OBJECT-TYPE
+        SYNTAX     INTEGER (0..16384)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the length of incoming URL used by
+            the URL Hashing Load Balancing policy.
+            If the value is 0, then URL hashing is done
+            for the entire URI. 
+            If the value is n, then URL hashing is done
+            for the first n chars of URL."
+        ::= { clusterEntry 66 }
+
+clusterLogPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TCP port of the syslog server receiving HTTP
+            traffic logs for this cluster."
+        ::= { clusterEntry 67 } 
+
+clusterLogBatchSize OBJECT-TYPE
+        SYNTAX     Integer32 (1..50)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Weblog batch memory (in MB) allocated for this cluster,
+            and max size of an uncompressed weblog batch file."
+        ::= { clusterEntry 68 } 
+
+clusterLogBatchAlarm1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Time #1 (HH:MM in 24-hour format) at which to copy
+            the weblog batch file."
+        ::= { clusterEntry 69 } 
+
+clusterLogBatchAlarm2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Time #2 (HH:MM in 24-hour format) at which to copy
+            the weblog batch file."
+        ::= { clusterEntry 70 } 
+
+clusterLogBatchAlarm3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Time #3 (HH:MM in 24-hour format) at which to copy
+            the weblog batch file."
+        ::= { clusterEntry 71 } 
+
+clusterLogBatchAlarmInterval OBJECT-TYPE
+        SYNTAX     Integer32 (0..1440)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Interval (in minutes) at which to copy the weblog batch file."
+        ::= { clusterEntry 72 } 
+
+clusterLogBatchDestDir OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Absolute path on the SCP destination host where the
+            weblog batch file will be copied to."
+        ::= { clusterEntry 73 } 
+
+clusterLogBatchDestServer OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SCP destination host of the weblog batch file."
+        ::= { clusterEntry 74 } 
+
+clusterLogBatchCompression OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if weblog batch files will be compressed."
+        ::= { clusterEntry 75 } 
+
+clusterLogBatchUser OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Username for the SCP destination host of the weblog batch file."
+        ::= { clusterEntry 76 } 
+
+clusterLogBatchScpPrivKey OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SSH2 private key file (RSA or DSA) used for SCP
+            authentication when copying the weblog batch file."
+        ::= { clusterEntry 77 } 
+
+clusterLogBatchRetryInterval OBJECT-TYPE
+        SYNTAX     Integer32 (30..1200)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Number of seconds after a failed weblog batch copy at which
+            to retry the copy."
+        ::= { clusterEntry 78 } 
+
+clusterHealthConnectionInterval OBJECT-TYPE
+        SYNTAX     Integer32 (1..3600)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The connection health check interval"
+        ::= { clusterEntry 79 }
+
+clusterHealthConnectionTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..60)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The connection health check timeout value."
+        ::= { clusterEntry 80 }
+
+clusterListenQos OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                none(0),
+                tos(1),
+                dscp(2)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen side qos marking type"
+        ::= { clusterEntry 81 }
+
+clusterListenQosIpPrecedence OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos tos ip precedence value"
+        ::= { clusterEntry 82 }
+
+clusterListenQosDtrc OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			normal(0),
+			cost(1),
+			reliability(2),
+			throughput(4),
+			delay(8)
+		}	
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos tos dtrc value"
+        ::= { clusterEntry 83 }
+
+clusterListenQosDscpType OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			raw(1),
+			class(2),
+			assured(3),
+			expedited(4)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos dscp type"
+        ::= { clusterEntry 84 }
+
+clusterListenQosDscpRaw OBJECT-TYPE
+        SYNTAX     Integer32 (0..63)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos dscp raw value"
+        ::= { clusterEntry 85 }
+
+clusterListenQosDscpClass OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos dscp class value"
+        ::= { clusterEntry 86 }
+
+clusterListenQosAssuredDp OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			low(2),
+			medium(4),
+			high(6)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos dscp assured drop precedence"
+        ::= { clusterEntry 87 }
+
+clusterListenQosAssuredClass OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			class1(1),
+			class2(2),
+			class3(3),
+			class4(4)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster listen side qos dscp assured class"
+        ::= { clusterEntry 88 }
+
+clusterTargetQos OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                none(0),
+                tos(1),
+                dscp(2)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos marking type"
+        ::= { clusterEntry 89 }
+
+clusterTargetQosIpPrecedence OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos tos ip precedence value"
+        ::= { clusterEntry 90 }
+
+clusterTargetQosDtrc OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			normal(0),
+			cost(1),
+			reliability(2),
+			throughput(4),
+			delay(8)
+		}	
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos tos dtrc value"
+        ::= { clusterEntry 91 }
+
+clusterTargetQosDscpType OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			raw(1),
+			class(2),
+			assured(3),
+			expedited(4)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos dscp type"
+        ::= { clusterEntry 92 }
+
+clusterTargetQosDscpRaw OBJECT-TYPE
+        SYNTAX     Integer32 (0..63)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos dscp raw value"
+        ::= { clusterEntry 93 }
+
+clusterTargetQosDscpClass OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos dscp class value"
+        ::= { clusterEntry 94 }
+
+clusterTargetQosAssuredDp OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			low(2),
+			medium(4),
+			high(6)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos dscp assured drop precedence"
+        ::= { clusterEntry 95 }
+
+clusterTargetQosAssuredClass OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			class1(1),
+			class2(2),
+			class3(3),
+			class4(4)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster target side qos dscp assured class"
+        ::= { clusterEntry 96 }
+
+clusterCustomIpLogHeader OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Custom header for sending the client IP address."
+        ::= { clusterEntry 97 }
+
+clusterForwardClientCert OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Custom header for sending the client certificate."
+        ::= { clusterEntry 98 }
+
+clusterCompTextXml OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for text/xml."
+        ::= { clusterEntry 99 }
+
+clusterCompTextXComponent OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for text/xcomponent."
+        ::= { clusterEntry 100 }
+
+clusterCompTextPlain OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for text/plain."
+        ::= { clusterEntry 101 }
+
+clusterCompTextHtml OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for text/html."
+        ::= { clusterEntry 102 }
+
+clusterCompTextCss OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for text/css."
+        ::= { clusterEntry 103 }
+
+clusterCompShockwave OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for shockwave."
+        ::= { clusterEntry 104 }
+
+clusterCompPolicy OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for the policy."
+        ::= { clusterEntry 105 }
+
+clusterCompOptimization OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for optimization."
+        ::= { clusterEntry 106 }
+
+clusterCompOctetstream OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for octetstream."
+        ::= { clusterEntry 107 }
+
+clusterCompMsOffice OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for MSOffice."
+        ::= { clusterEntry 108 }
+
+clusterCompJavascript OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for Javascript."
+        ::= { clusterEntry 109 }
+
+clusterCompHttp10 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for HTTP 1.0."
+        ::= { clusterEntry 110 }
+
+clusterCompForce OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster setting for forcing compression."
+        ::= { clusterEntry 111 }
+
+clusterCompFlushThreshold OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster setting for compression flushing."
+        ::= { clusterEntry 112 }
+
+clusterCompCmtStatus OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting enabling custom mime-types."
+        ::= { clusterEntry 113 }
+
+clusterCompCmt1 OBJECT-TYPE
+        SYNTAX     DisplayString 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for custom mime-type 1."
+        ::= { clusterEntry 114 }
+
+clusterCompCmt2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for custom mime-type 2."
+        ::= { clusterEntry 115 }
+
+clusterCompCmt3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for custom mime-type 3."
+        ::= { clusterEntry 116 }
+
+clusterCompBrowserSafari OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser Safari."
+        ::= { clusterEntry 117 }
+
+clusterCompBrowserOther OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for other browsers."
+        ::= { clusterEntry 118 }
+
+clusterCompBrowserOpera OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser Opera."
+        ::= { clusterEntry 119 }
+
+clusterCompBrowserNS6 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser Netscape 6."
+        ::= { clusterEntry 120 }
+
+clusterCompBrowserNS4 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser Netscape 4."
+        ::= { clusterEntry 121 }
+
+clusterCompBrowserKonqueror OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser Konqueror."
+        ::= { clusterEntry 122 }
+
+clusterCompBrowserIEOther OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE Other."
+        ::= { clusterEntry 123 }
+
+clusterCompBrowserIE7 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 7."
+        ::= { clusterEntry 124 }
+
+clusterCompBrowserIE6 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 6."
+        ::= { clusterEntry 125 }
+
+clusterCompBrowserIE55 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 5.5."
+        ::= { clusterEntry 126 }
+
+clusterCompBrowserIE51 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 5.1."
+        ::= { clusterEntry 127 }
+
+clusterCompBrowserIE50 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 5.0."
+        ::= { clusterEntry 128 }
+
+clusterCompBrowserIE4 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for browser IE 4."
+        ::= { clusterEntry 129 }
+
+clusterComp2kPadding OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for 2K padding."
+        ::= { clusterEntry 130 }
+
+-- cluster factory config
+--
+clusterfaddt OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 131 }
+
+clusterfafcl OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 132 }
+
+clusterfarbr OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 133 }
+
+clusterfart OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 134 }
+
+clusterfacsb OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 135 }
+
+clusterfacrb OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 136 }
+
+clusterfaeus OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 137 }
+
+clusterfcuar OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 138 }
+
+clusterfhrbl OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 139 }
+
+clusterfhscc OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 140 }
+
+clusterfh5 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 141 }
+
+clusterfhibh OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 142 }
+
+clusterfhpt OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 143 }
+
+clusterfhtc3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 144 }
+
+clusterfhv OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 145 }
+
+clusterfhw OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 146 }
+
+clusterfhy OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 147 }
+
+clusterfhz OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 148 }
+
+clusterfkac OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 149 }
+
+clusterfkacrv0 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 150 }
+
+clusterfkacrv1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 151 }
+
+clusterfkat OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 152 }
+
+clusterStickyCIPLeader OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Client IP sticky is shared with this leader."
+        ::= { clusterEntry 153 }
+
+clusterHealthTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..60)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Health check request timeout value."
+        ::= { clusterEntry 154 }
+
+clusterSacompatStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates if SA compatibility feature is enabled or not."
+        ::= { clusterEntry 155 }
+
+clusterSacompatUrl1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SA compatibility url number 1"
+        ::= { clusterEntry 156 }
+
+clusterSacompatUrl2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SA compatibility url number 2"
+        ::= { clusterEntry 157 }
+
+clusterSacompatUrl3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "SA compatibility url number 3"
+        ::= { clusterEntry 158 }
+
+clusterAuthSSOStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Single Sign On authentication enabled(1)/disabled(0) for cluster."
+        ::= { clusterEntry 159 }
+
+clusterAuthSSODomain OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Wild card domain name for single sign on authentication."
+        ::= { clusterEntry 160 }
+
+clusterAuthSSOCookieName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Cookie name to be used for single sign on authentication."
+        ::= { clusterEntry 161 }
+
+clusterAuthSSOCookieExpire OBJECT-TYPE
+        SYNTAX     Integer32 (0..525600)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+             "Expire time for single sign on cookie. This time is in minutes."
+        ::= { clusterEntry 162 }
+
+clusterfh4 OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { clusterEntry 163 }
+
+clusterftckat OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { clusterEntry 164 }
+
+clusterfttkat OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { clusterEntry 165 }
+
+clusterfhmcl OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 166 }
+
+clusterListenSSLAutoChainStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain status for cluster listen ssl"
+        ::= { clusterEntry 167 }
+
+clusterListenSSLAutoChainRootCertStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain rootcert status for cluster listen ssl"
+        ::= { clusterEntry 168 }
+
+clusterTargetSSLAutoChainStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain status for cluster target ssl"
+        ::= { clusterEntry 169 }
+
+clusterTargetSSLAutoChainRootCertStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain rootcert status for cluster target ssl"
+        ::= { clusterEntry 170 }
+
+clusterfh9 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { clusterEntry 171 }
+
+clusterCompPDF OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for PDF documents."
+        ::= { clusterEntry 172 }
+
+clusterCompSharePoint OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster compression setting for MS Sharepoint."
+        ::= { clusterEntry 173 }
+
+clusterStickyFailover OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Sticky failover status."
+        ::= { clusterEntry 174 }
+
+clusterStickySoftPauseOverride OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The softpause override setting for forwarder's sticky entries"
+        ::= { clusterEntry 175 }
+
+clusterStickyCookieName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Sticky Cookie name."
+        ::= { clusterEntry 176 }
+
+clusterfh1 OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { clusterEntry 177 }
+
+---------------------------------------------------------------------------
+-- Config Target Sub-Section
+---------------------------------------------------------------------------
+targetServerCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of configured target servers."
+        ::= { dxConfig 4 }
+
+---------------------------------------------------------------------------
+-- Target Server Configuration Table
+---------------------------------------------------------------------------
+targetServerTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF TargetServerEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the Target Servers."
+        ::= { dxConfig 5 }
+
+targetServerEntry OBJECT-TYPE
+        SYNTAX     TargetServerEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the targetServerTable."
+        INDEX      { targetServerIndex }
+        ::= { targetServerTable 1 }
+
+TargetServerEntry ::=
+        SEQUENCE {
+            targetServerIndex
+                Integer32,
+
+            targetServerCluster
+                Integer32,
+
+            targetServerForwarder
+                Integer32,
+
+            targetServerRedirector
+                Integer32,
+
+            targetServerAddress
+                DisplayString,
+
+            targetServerPort
+                Integer32,
+
+            targetServerAdminStatus
+                INTEGER,
+           
+            targetServerOperationalStatus 
+                INTEGER,
+            
+            targetServerHealthDetail 
+                INTEGER,
+
+            targetServerMaxConnections
+                Integer32, 
+            
+            targetServerWeight
+                Integer32
+        }
+
+targetServerIndex OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..2147483647 )
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The auxiliary variable used for identifying instances of
+             the columnar objects in the target server table."
+        ::= { targetServerEntry 1 }
+
+targetServerCluster OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..2147483647 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The cluster that this Target Server belongs to."
+        ::= { targetServerEntry 2 }
+ 
+targetServerForwarder  OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..2147483647 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Forwarder that this Target Server belongs to."
+        ::= { targetServerEntry 3 }
+ 
+ 
+targetServerRedirector  OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..2147483647 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Redirector that this Target Server belongs to."
+        ::= { targetServerEntry 4 }
+ 
+targetServerAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of this Target Server."
+        ::= { targetServerEntry 5 }
+
+targetServerPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TCP Port for communicating to this Target Server."
+        ::= { targetServerEntry 6 }
+
+targetServerAdminStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether this Target Server is currently enabled(1)
+             or disabled(0) for its use by the appropriate cluster."
+        ::= { targetServerEntry 7 }
+
+targetServerOperationalStatus OBJECT-TYPE
+        SYNTAX     INTEGER { up(1), unavailable(2), disabled(3), down(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the current health of this Target Server."
+        ::= { targetServerEntry 8 }
+
+targetServerHealthDetail OBJECT-TYPE
+        SYNTAX     INTEGER { noReason(-1), unknownReason(0), connectionRefused(1), connectionTimeout(2), connectionUnknown(3), transportLayerProtocolClosed(4), transportLayerProtocolFailure(5), transportLayerProtocolTimeout(6), responseTimeout (7), returnCodeMismatch(8), responseSizeMismatch(9), responseStringMismatch(10), corruptReply(11), unknownLayer7Reason(12), pendingUp(13), up(14) , softPaused(15), hardPaused(16)}
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "Indicates the detail relating to the current health of this Target Server."
+        ::= { targetServerEntry 9 }
+
+targetServerMaxConnections  OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Maximum number of connections that can be openned simultaneously
+            to this target server."
+        ::= { targetServerEntry 10 }
+
+targetServerWeight  OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Load balancing policy weight assigned to this target server."
+        ::= { targetServerEntry 11 }
+
+forwarderCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of configured forwarders."
+        ::= { dxConfig 6 }
+
+---------------------------------------------------------------------------
+-- Config forwader Sub-Section
+---------------------------------------------------------------------------
+
+---------------------------------------------------------------------------
+-- Forwarder Configuration Table
+---------------------------------------------------------------------------
+forwarderTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF ForwarderEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the Target Servers."
+        ::= { dxConfig 7 }
+
+forwarderEntry OBJECT-TYPE
+        SYNTAX     ForwarderEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the targetServerTable."
+        INDEX      { forwarderIndex }
+        ::= { forwarderTable 1 }
+
+ForwarderEntry ::=
+        SEQUENCE {
+            forwarderIndex
+                Integer32,
+
+            forwarderListenAddress
+                DisplayString,
+
+            forwarderListenNetmask
+                DisplayString,
+
+            forwarderListenPort
+                Integer32,
+
+            forwarderTargetServerCount
+                Integer32,
+
+            forwarderLogStatus
+                INTEGER,
+
+            forwarderLogHost
+                DisplayString,
+
+            forwarderName
+                DisplayString,   
+
+            forwarderDesc
+                DisplayString,
+
+            forwarderListenSSLstatus
+                INTEGER,
+
+            forwarderListenSSLcertfile
+                DisplayString,
+
+            forwarderListenSSLkeyfile
+                DisplayString,
+
+            forwarderListenSSLcipherSuite
+                INTEGER,
+
+            forwarderListenSSLprotocol
+                INTEGER,
+
+            forwarderTargetName
+                DisplayString,
+
+            forwarderTargetSSLstatus
+                INTEGER,
+
+            forwarderTargetSSLcertfile
+                DisplayString,
+
+            forwarderTargetSSLkeyfile
+                DisplayString,
+
+            forwarderTargetSSLcipherSuite
+                INTEGER,
+
+            forwarderTargetSSLprotocol
+                INTEGER,
+
+            forwarderTargetSSLtimeout
+                Integer32,
+
+            forwarderListenSSLephkeyfile
+                DisplayString,
+
+            forwarderDSRStatus
+                INTEGER,
+
+            forwarderStickyMethod
+                INTEGER,
+
+            forwarderStickyCIPTimeout
+                Integer32,
+
+            forwarderStickyCIPDistribution
+                INTEGER,
+
+			forwarderHealthDownRetry
+				Integer32,
+
+			forwarderHealthConnectionInterval
+				Integer32,
+
+			forwarderHealthConnectionTimeout
+				Integer32,
+
+            forwarderListenQos 
+                INTEGER,
+
+            forwarderListenQosIpPrecedence 
+                Integer32,
+
+            forwarderListenQosDtrc 
+                INTEGER,
+
+            forwarderListenQosDscpType 
+                INTEGER,
+
+            forwarderListenQosDscpRaw 
+                Integer32,
+
+            forwarderListenQosDscpClass 
+                Integer32,
+
+            forwarderListenQosAssuredDp 
+                INTEGER,
+
+            forwarderListenQosAssuredClass 
+                INTEGER,
+
+            forwarderTargetQos 
+                INTEGER,
+
+            forwarderTargetQosIpPrecedence 
+                Integer32,
+
+            forwarderTargetQosDtrc 
+                INTEGER,
+
+            forwarderTargetQosDscpType 
+                INTEGER,
+
+            forwarderTargetQosDscpRaw 
+                Integer32,
+
+            forwarderTargetQosDscpClass 
+                Integer32,
+
+            forwarderTargetQosAssuredDp 
+                INTEGER,
+
+            forwarderTargetQosAssuredClass 
+                INTEGER,
+
+			forwarderStickyCIPLeader
+				DisplayString,
+	
+			forwarderftckat,
+				DisplayString,
+
+			forwarderfttkat,
+				DisplayString,
+
+			forwarderListenSSLAutoChainStatus
+				INTEGER,
+
+			forwarderListenSSLAutoChainRootCertStatus
+				INTEGER,
+
+			forwarderTargetSSLAutoChainStatus
+				INTEGER,
+
+			forwarderTargetSSLAutoChainRootCertStatus
+				INTEGER,
+			
+            forwarderStickyFailover
+                INTEGER,
+
+            forwarderStickySoftPauseOverride
+                INTEGER
+        }
+
+forwarderIndex OBJECT-TYPE
+        SYNTAX     Integer32 ( 0..2147483647 )
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The auxiliary variable used for identifying instances of
+             the columnar objects in the forwarder table."
+        ::= { forwarderEntry 1 }
+
+forwarderListenAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of this forwarder."
+        ::= { forwarderEntry 2 }
+
+forwarderListenNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Netmask of this forwarder."
+        ::= { forwarderEntry 3 }
+
+forwarderListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TCP Port to listen on for this forwarder."
+        ::= { forwarderEntry 4 }
+
+forwarderTargetServerCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2048)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of Target Servers for this cluster."
+        ::= { forwarderEntry 5 }
+
+forwarderLogStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the logging machanism is
+             enabled(1) or disabled(0) for this forwarder."
+        ::= { forwarderEntry 6 }
+
+forwarderLogHost OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of the log host for this forwarder."
+        ::= { forwarderEntry 7 }
+
+forwarderName OBJECT-TYPE
+        SYNTAX     DisplayString 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Forwarder name."
+        ::= { forwarderEntry 8 }
+
+forwarderDesc OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Forwarder description string."
+        ::= { forwarderEntry 9 } 
+
+forwarderListenSSLstatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This forwarder to communicate using SSL or not."
+        ::= { forwarderEntry 10 }
+
+forwarderListenSSLcertfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL Certificate for this forwarder."
+        ::= { forwarderEntry 11 }
+
+forwarderListenSSLkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL key for this forwarder."
+        ::= { forwarderEntry 12 }
+
+forwarderListenSSLcipherSuite OBJECT-TYPE
+        SYNTAX     INTEGER { common(0), strong(1), export(2), all(3), file(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this forwarder."
+        ::= { forwarderEntry 13 }
+
+forwarderListenSSLprotocol OBJECT-TYPE
+        SYNTAX     INTEGER { sslv2(0), sslv3(1), sslv23(2), tlsv1(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this forwarder."
+        ::= { forwarderEntry 14 }
+
+forwarderTargetName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The target name for this forwarder."
+        ::= { forwarderEntry 15 }
+
+forwarderTargetSSLstatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This forwarder to communicate with all its Target Server using SSL or not."
+        ::= { forwarderEntry 16 }
+
+forwarderTargetSSLcertfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL Certificate for communication with the Target Servers."
+        ::= { forwarderEntry 17 }
+
+forwarderTargetSSLkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL key for comminication with the Target Servers."
+        ::= { forwarderEntry 18 }
+
+forwarderTargetSSLcipherSuite OBJECT-TYPE
+        SYNTAX     INTEGER { common(0), strong(1), export(2), all(3), file(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for comminication with the Target Servers."
+        ::= { forwarderEntry 19 }
+
+forwarderTargetSSLprotocol OBJECT-TYPE
+        SYNTAX     INTEGER { sslv2(0), sslv3(1), sslv23(2), tlsv1(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL protocol to use for communication with the Target Servers."
+        ::= { forwarderEntry 20 }
+
+forwarderTargetSSLtimeout OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL timeout to use for communication with the Target Servers."
+        ::= { forwarderEntry 21 }
+
+            
+forwarderListenSSLephkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL ephemeral key for this forwarder."
+        ::= { forwarderEntry 22 }
+
+
+forwarderDSRStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the direct server return machanism is
+             enabled(1) or disabled(0) for this forwarder."
+        ::= { forwarderEntry 23 }
+
+forwarderStickyMethod OBJECT-TYPE
+        SYNTAX     INTEGER { none(0), clientIP(2) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The method of 'sticky' this forwarder is configured to use"
+        ::= { forwarderEntry 24 }
+
+forwarderStickyCIPTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..43200)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Client IP sticky binding timeout"
+        ::= { forwarderEntry 25 }
+
+forwarderStickyCIPDistribution OBJECT-TYPE
+        SYNTAX     INTEGER { internet(0), intranet(1) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "The hashing method for client IP sticky this forwarder is configured to use."
+        ::= { forwarderEntry 26 }
+
+forwarderHealthDownRetry OBJECT-TYPE
+        SYNTAX     Integer32 (1..20)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The number of times the health check should be retried before its declared down."
+        ::= { forwarderEntry 27 }
+
+forwarderHealthConnectionInterval OBJECT-TYPE
+        SYNTAX     Integer32 (1..3600)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The connection health check interval"
+        ::= { forwarderEntry 28 }
+
+forwarderHealthConnectionTimeout OBJECT-TYPE
+        SYNTAX     Integer32 (1..60)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The connection health check timeout value."
+        ::= { forwarderEntry 29 }
+
+forwarderListenQos OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                none(0),
+                tos(1),
+                dscp(2)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos marking type"
+        ::= { forwarderEntry 30 }
+
+forwarderListenQosIpPrecedence OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos tos ip precedence value"
+        ::= { forwarderEntry 31 }
+
+forwarderListenQosDtrc OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			normal(0),
+			cost(1),
+			reliability(2),
+			throughput(4),
+			delay(8)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos tos dtrc value"
+        ::= { forwarderEntry 32 }
+
+forwarderListenQosDscpType OBJECT-TYPE
+        SYNTAX     INTEGER
+		{ raw(1), class(2), assured(3), expedited(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos dscp type"
+        ::= { forwarderEntry 33 }
+
+forwarderListenQosDscpRaw OBJECT-TYPE
+        SYNTAX     Integer32 (0..63)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos dscp raw value"
+        ::= { forwarderEntry 34 }
+
+forwarderListenQosDscpClass OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos dscp class value"
+        ::= { forwarderEntry 35 }
+
+forwarderListenQosAssuredDp OBJECT-TYPE
+        SYNTAX     INTEGER
+         { low(2), medium(4), high(6) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos dscp assured drop precedence"
+        ::= { forwarderEntry 36 }
+
+forwarderListenQosAssuredClass OBJECT-TYPE
+        SYNTAX     INTEGER
+		{ class1(1), class2(2), class3(3), class4(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder listen side qos dscp assured class"
+        ::= { forwarderEntry 37 }
+
+forwarderTargetQos OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                none(0),
+                tos(1),
+                dscp(2)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos marking type"
+        ::= { forwarderEntry 38 }
+
+forwarderTargetQosIpPrecedence OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos tos ip precedence value"
+        ::= { forwarderEntry 39 }
+
+forwarderTargetQosDtrc OBJECT-TYPE
+        SYNTAX     INTEGER 
+		{ normal(0), cost(1), reliability(2), throughput(4), delay(8) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos tos dtrc value"
+        ::= { forwarderEntry 40 }
+
+forwarderTargetQosDscpType OBJECT-TYPE
+        SYNTAX     INTEGER 
+		{ raw(1), class(2), assured(3), expedited(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos dscp type"
+        ::= { forwarderEntry 41 }
+
+forwarderTargetQosDscpRaw OBJECT-TYPE
+        SYNTAX     Integer32 (0..63)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos dscp raw value"
+        ::= { forwarderEntry 42 }
+
+forwarderTargetQosDscpClass OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos dscp class value"
+        ::= { forwarderEntry 43 }
+
+forwarderTargetQosAssuredDp OBJECT-TYPE
+        SYNTAX     INTEGER 
+         { low(2), medium(4), high(6) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos dscp assured drop precedence"
+        ::= { forwarderEntry 44 }
+
+forwarderTargetQosAssuredClass OBJECT-TYPE
+        SYNTAX     INTEGER
+		{ class1(1), class2(2), class3(3), class4(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The forwarder target side qos dscp assured class"
+        ::= { forwarderEntry 45 }
+
+forwarderStickyCIPLeader OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Client IP sticky is shared with this leader."
+        ::= { forwarderEntry 46 }
+
+forwarderftckat OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { forwarderEntry 47 }
+
+forwarderfttkat OBJECT-TYPE
+         SYNTAX     DisplayString
+         MAX-ACCESS read-only
+         STATUS     current
+         DESCRIPTION
+             "???"
+         ::= { forwarderEntry 48 }
+
+forwarderListenSSLAutoChainStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain status for forwarder listen ssl"
+        ::= { forwarderEntry 49 }
+
+forwarderListenSSLAutoChainRootCertStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain rootcert status for forwarder listen ssl"
+        ::= { forwarderEntry 50 }
+
+forwarderTargetSSLAutoChainStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain status for forwarder target ssl"
+        ::= { forwarderEntry 51 }
+
+forwarderTargetSSLAutoChainRootCertStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain rootcert status for forwarder target ssl"
+        ::= { forwarderEntry 52 }
+
+forwarderStickyFailover OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Sticky failover status."
+        ::= { forwarderEntry 53 }
+
+forwarderStickySoftPauseOverride OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The softpause override setting for forwarder's sticky entries"
+        ::= { forwarderEntry 54 }
+
+---------------------------------------------------------------------------
+-- Config Redirector Sub-Section
+---------------------------------------------------------------------------
+redirectorCount OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The count of configured redirectors."
+        ::= { dxConfig 8 }
+redirectorTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF RedirectorEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing the redirectors."
+       ::= { dxConfig 9 }
+
+redirectorEntry OBJECT-TYPE
+        SYNTAX     RedirectorEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the redirectorTable."
+        INDEX      { redirectorIndex }
+        ::= { redirectorTable 1 }
+
+RedirectorEntry ::=
+        SEQUENCE {
+            redirectorIndex
+                Integer32,
+
+            redirectorListenAddress
+                DisplayString,
+
+            redirectorListenNetmask
+                DisplayString,
+
+            redirectorListenPort
+                Integer32,
+
+            redirectorListenSSLstatus
+                INTEGER,
+
+            redirectorListenSSLcertfile
+                DisplayString,
+
+            redirectorListenSSLkeyfile
+                DisplayString,
+
+            redirectorListenSSLcipherSuite
+                INTEGER,
+
+            redirectorListenSSLprotocol
+                INTEGER,
+
+            redirectorAdminStatus
+                INTEGER,
+
+            redirectorOperationalStatus
+                INTEGER,
+
+            redirectorTargetHost
+                DisplayString,
+
+            redirectorListenUrlMethod
+                DisplayString,
+
+            redirectorCustomUrl
+                DisplayString,
+
+            redirectorDSRStatus
+                INTEGER,
+
+            redirectorName
+                DisplayString,
+
+            redirectorDesc
+                DisplayString,
+
+            redirectorListenSSLephkeyfile
+                DisplayString,
+
+            redirectorListenQos 
+                INTEGER,
+
+            redirectorListenQosIpPrecedence 
+                Integer32,
+
+            redirectorListenQosDtrc 
+                INTEGER,
+
+            redirectorListenQosDscpType 
+                INTEGER,
+
+            redirectorListenQosDscpRaw 
+                Integer32,
+
+            redirectorListenQosDscpClass 
+                Integer32,
+
+            redirectorListenQosAssuredDp 
+                INTEGER,
+
+            redirectorListenQosAssuredClass 
+                INTEGER,
+
+			redirectorListenSSLAutoChainStatus
+				INTEGER,
+
+			redirectorListenSSLAutoChainRootCertStatus,
+				INTEGER
+        }
+
+redirectorIndex OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The Redirector Index"
+        ::= { redirectorEntry 1 }
+
+redirectorListenAddress OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP Address of this redirector."
+        ::= { redirectorEntry 2 }
+
+redirectorListenNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The Netmask of this redirector."
+        ::= { redirectorEntry 3 }
+
+redirectorListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The TCP Port to listen on for HTTP traffic to this redirector."
+        ::= { redirectorEntry 4 }
+
+redirectorListenSSLstatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This redirector to communicate using SSL or not."
+        ::= { redirectorEntry 5 }
+
+redirectorListenSSLcertfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL Certificate for this redirector."
+        ::= { redirectorEntry 6 }
+
+redirectorListenSSLkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL key for this redirector."
+        ::= { redirectorEntry 7 }
+
+redirectorListenSSLcipherSuite OBJECT-TYPE
+        SYNTAX     INTEGER { common(0), strong(1), export(2), all(3), file(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this redirector."
+        ::= { redirectorEntry 8 }
+
+redirectorListenSSLprotocol OBJECT-TYPE
+        SYNTAX     INTEGER { sslv2(0), sslv3(1), sslv23(2), tlsv1(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The SSL cipher suite to use for this redirector."
+        ::= { redirectorEntry 9 }
+
+
+redirectorAdminStatus  OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "This cluster is enabled for redirection or not."
+        ::= { redirectorEntry 10 }
+
+redirectorOperationalStatus  OBJECT-TYPE
+        SYNTAX     INTEGER { down(0), up(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the  redirector is up(1) or down(0)."
+        ::= { redirectorEntry 11 }
+
+redirectorTargetHost  OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The hostname or VIP  to redirect the request to."
+        ::= { redirectorEntry 12 }
+
+redirectorListenUrlMethod  OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The request URL to redirect."
+        ::= { redirectorEntry 13 }
+
+redirectorCustomUrl  OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The URL to be appended/replaced for redirect."
+        ::= { redirectorEntry 14 }
+
+redirectorDSRStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether this redirector is configured for DSR mode"
+        ::= { redirectorEntry 15 }
+
+redirectorName OBJECT-TYPE
+        SYNTAX     DisplayString 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Redirector name."
+        ::= { redirectorEntry 16 }
+        
+redirectorDesc OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Redirector description string."
+        ::= { redirectorEntry 17 } 
+
+redirectorListenSSLephkeyfile OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The file that holds the SSL ephemeral key for this redirector."
+        ::= { redirectorEntry 18 }
+
+redirectorListenQos OBJECT-TYPE
+        SYNTAX     INTEGER 
+                { 
+                none(0),
+                tos(1),
+                dscp(2)
+                }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos marking type"
+        ::= { redirectorEntry 19 }
+
+redirectorListenQosIpPrecedence OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos tos ip precedence value"
+        ::= { redirectorEntry 20 }
+
+redirectorListenQosDtrc OBJECT-TYPE
+        SYNTAX     INTEGER
+		{
+			normal(0),
+			cost(1),
+			reliability(2),
+			throughput(4),
+			delay(8)
+		}
+			
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos tos dtrc value"
+        ::= { redirectorEntry 21 }
+
+redirectorListenQosDscpType OBJECT-TYPE
+        SYNTAX     INTEGER
+		{ raw(1), class(2), assured(3), expedited(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos dscp type"
+        ::= { redirectorEntry 22 }
+
+redirectorListenQosDscpRaw OBJECT-TYPE
+        SYNTAX     Integer32 (0..63)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos dscp raw value"
+        ::= { redirectorEntry 23 }
+
+redirectorListenQosDscpClass OBJECT-TYPE
+        SYNTAX     Integer32 (0..7)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos dscp class value"
+        ::= { redirectorEntry 24 }
+
+redirectorListenQosAssuredDp OBJECT-TYPE
+        SYNTAX     INTEGER 
+		{ low(2), medium(4), high(6) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos dscp assured drop precedence"
+        ::= { redirectorEntry 25 }
+
+redirectorListenQosAssuredClass OBJECT-TYPE
+        SYNTAX     INTEGER
+		{ class1(1), class2(2), class3(3), class4(4) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The redirector listen side qos dscp assured class"
+        ::= { redirectorEntry 26 }
+
+redirectorListenSSLAutoChainStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain status for redirector listen ssl"
+        ::= { redirectorEntry 27 }
+
+redirectorListenSSLAutoChainRootCertStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Certificate autochain rootcert status for redirector listen ssl"
+        ::= { redirectorEntry 28 }
+
+---------------------------------------------------------------------------
+-- FACTORY
+---------------------------------------------------------------------------
+factory OBJECT IDENTIFIER ::= { dxConfig 10 }
+
+---------------------------------------------------------------------------
+-- FACTORY A
+---------------------------------------------------------------------------
+fa  OBJECT IDENTIFIER ::= { factory 1 }
+
+fabp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { fa  1 }
+
+facp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  2 }
+
+falp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { fa  3 }
+
+fact OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  4 }
+
+famt OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  5 }
+
+fapst OBJECT-TYPE
+        SYNTAX     Integer32 (1..524288)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  6 }
+
+fassm OBJECT-TYPE
+        SYNTAX     Integer32 (1..10)
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { fa  7 }
+
+faccr OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { fa 8 }
+
+fascr OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa 9 }
+
+facsb OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  10 }
+
+facrb OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  11 }
+
+fassb OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  12 }
+
+fasrb OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  13 }
+
+fabps OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  14 }
+
+falps OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  15 }
+
+faym OBJECT-TYPE
+        SYNTAX    INTEGER { disabled(0), enabled(1) } 
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  16 }
+
+fapmd OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  17 }
+
+fassf OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  18 }
+
+faucp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  19 }
+
+fahsd OBJECT-TYPE
+        SYNTAX     INTEGER { down(0), up(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  20 }
+
+famc OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  21 }
+
+fapst2 OBJECT-TYPE
+        SYNTAX     Integer32 (1..524288)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  22 }
+
+fapuf OBJECT-TYPE
+        SYNTAX     Integer32 (0..10)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  23 }
+
+farid0 OBJECT-TYPE
+        SYNTAX     Integer32 (1..128)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  24 }
+
+farid1 OBJECT-TYPE
+        SYNTAX     Integer32 (1..128)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  25 }
+
+farlf OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  26 }
+
+fassw OBJECT-TYPE
+        SYNTAX     Integer32 (2..60)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fa  27 }
+
+---------------------------------------------------------------------------
+-- FACTORY C
+---------------------------------------------------------------------------
+fc  OBJECT IDENTIFIER ::= { factory 2 }
+
+fcp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  1 }
+
+fcth OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  2 }
+
+fctc OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  3 }
+
+fctp OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  4 }
+
+fctx OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  5 }
+
+fcaj OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  6 }
+
+fcasf OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  7 }
+
+fcaos OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc 8 }
+
+
+fcmso OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc 9 }
+
+fccmt OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  10 }
+
+fccmt1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  11 }
+
+fccmt2 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  12 }
+
+fccmt3 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  13 }
+
+fcu2 OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  14 }
+
+fcf OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  15 }
+
+fc10 OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  16 }
+
+fcons OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  17 }
+
+fctxc OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fc  18 }
+
+
+---------------------------------------------------------------------------
+-- FACTORY H
+---------------------------------------------------------------------------
+fh  OBJECT IDENTIFIER ::= { factory 4 }
+
+fh5 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  1 }
+
+fhv OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  2 }
+
+fhw OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  3 }
+
+fhz OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  4 }
+
+fhibh OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  5 }
+
+fhtc3 OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  6 }
+
+fhy OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  7 }
+
+fhpt OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  8 }
+
+fh4 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  9 }
+
+fhmcl OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  10 }
+
+fh9 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  11 }
+
+fh1 OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fh  12 }
+
+
+---------------------------------------------------------------------------
+-- Misc factory
+---------------------------------------------------------------------------
+fkac OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  5 }
+
+fkat OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  6 }
+
+fm OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  7 }
+
+fmfs OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  8 }
+
+fqss OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { factory  9 }
+
+fr OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  10 }
+
+---------------------------------------------------------------------------
+-- FACTORY S
+---------------------------------------------------------------------------
+fs  OBJECT IDENTIFIER ::= { factory 11 }
+
+fsmsi OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  1 }
+
+fsncb OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  2 }
+
+fsnrc OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  3 }
+
+fsrct OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  4 }
+
+fsmbb OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  5 }
+
+fsmrp OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  6 }
+
+fsecd OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  7 }
+
+fstd5 OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs  8 }
+
+fstbp OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  9 }
+
+fstrb OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  10 }
+
+fshw  OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  11 }
+
+fssef OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  12 }
+
+fsmc80 OBJECT-TYPE
+        SYNTAX     Integer32 (1..500000)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  13 }
+
+fsc   OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= {  fs  14 }
+
+fsqss OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs 15 }
+
+fscscf OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fs 16 }
+
+---------------------------------------------------------------------------
+-- FACTORY SC
+---------------------------------------------------------------------------
+fsc OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  12 }
+
+---------------------------------------------------------------------------
+-- FACTORY SVC
+---------------------------------------------------------------------------
+fsvc OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  13 }
+
+---------------------------------------------------------------------------
+-- Other factory
+---------------------------------------------------------------------------
+fcscf OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     deprecated
+        DESCRIPTION
+            "???"
+        ::= { factory  17 }
+
+fcft OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  18}
+
+fcb4 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  19}
+
+fcb0 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  20}
+
+fcb1 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  21}
+
+fcb5 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  22}
+
+fcb6 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  23}
+
+fcbn OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  24}
+
+fcbg OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  25}
+
+fcbo OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  26}
+
+fcbk OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  27}
+
+fcbs OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  28}
+
+fcbit OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  29}
+
+fcbt OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  30}
+
+fcb7 OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  35}
+
+
+---------------------------------------------------------------------------
+-- FACTORY TSC
+---------------------------------------------------------------------------
+ftsc  OBJECT IDENTIFIER ::= { factory 31 }
+
+ftscsc OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  1 }
+
+ftscbl OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  2 }
+
+ftsccl OBJECT-TYPE
+        SYNTAX     Integer32 (0..2147483647)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  3 }
+
+ftschs OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  4 }
+
+ftscrl OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  5 }
+
+ftscct OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  6 }
+
+ftsciqd OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  7 }
+
+ftsciqm OBJECT-TYPE
+        SYNTAX     Integer32 (1..65536)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ftsc  8 }
+
+
+---------------------------------------------------------------------------
+-- Misc factory cmds
+---------------------------------------------------------------------------
+fkacccrv0 OBJECT-TYPE
+        SYNTAX     INTEGER { never(0), always(1), redirects(2), all3xx(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  32 }
+
+fkacccrv1 OBJECT-TYPE
+        SYNTAX     INTEGER { never(0), always(1), redirects(2), all3xx(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { factory  33 }
+
+---------------------------------------------------------------------------
+-- FACTORY SH
+---------------------------------------------------------------------------
+fsh  OBJECT IDENTIFIER ::= { factory 34 }
+
+fshfl OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fsh  1 }
+
+fshml OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fsh  2 }
+
+fshp OBJECT-TYPE
+        SYNTAX     Integer32 (1..131072)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { fsh  3 }
+
+---------------------------------------------------------------------------
+-- FACTORY T
+---------------------------------------------------------------------------
+ft  OBJECT IDENTIFIER ::= { factory 36 }
+
+ftckat OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ft  1 }
+
+fttkat OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "???"
+        ::= { ft  2 }
+
+---------------------------------------------------------------------------
+-- Failover
+---------------------------------------------------------------------------
+configFailover OBJECT IDENTIFIER ::= { dxConfig 11 }
+
+configFailoverStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the failover machanism is enabled(1)
+             or disabled(0)."
+        ::= { configFailover 1 }
+
+configFailoverHealthCheckInterval OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Failover link health check polling interval."
+        ::= { configFailover 2 }
+
+configFailoverFailCount OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The number of times link health check fails before which it is marked down."
+        ::= { configFailover 3 }
+
+configFailoverVirtualMacStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Status of VMAC failover. When configFailoverVirtualMacStatus 
+            is enabled, failover is done using VirtualMac."
+        ::= { configFailover 4 }
+
+configFailoverVirtualMacID OBJECT-TYPE
+        SYNTAX     INTEGER (0..255)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "ID defining the Virtual MAC address to be used. 
+            Default value is 0."
+        ::= { configFailover 5 }
+
+
+---------------------------------------------------------------------------
+-- Unified Failover
+---------------------------------------------------------------------------
+unifiedFailover OBJECT IDENTIFIER ::= { dxConfig 12 }
+
+failoverStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the failover machanism is enabled(1)
+             or disabled(0)."
+        ::= { unifiedFailover 1 }
+
+failoverForceMaster OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the ForceMaster setting is enabled(1)
+             or disabled(0)."
+        ::= { unifiedFailover 2 }
+
+failoverDiscoveryInterface OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the interface on which discovery packets will be sent."
+        ::= { unifiedFailover 3 }
+
+failoverDiscoveryPort OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Port used for sending/receiving discovery packets."
+        ::= { unifiedFailover 4 }
+
+failoverNodeID OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "ID of the node. A value of -1 implies that the ID 
+			will be automatically choosen."
+        ::= { unifiedFailover 5 }
+
+failoverPollInterval OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..60 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Interval (in seconds) at which failover process does its due 
+			diligence. It includes checking state of services, links, sending
+			appropriate messages to peers, checking timed-out peers."
+        ::= { unifiedFailover 6 }
+
+failoverMissedCount OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..10 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "If we have missed these many packets from the peer,
+			then consider peer to be unreachable. That is, this count
+			represents the threshold used to decide whether peer is
+			reachable or not. We normally expect a packet every
+			failoverPollInterval seconds"
+        ::= { unifiedFailover 7 }
+
+failoverVmac1Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates Virtual MAC status for interface 1."
+        ::= { unifiedFailover 8 }
+
+failoverVmac1ID OBJECT-TYPE
+        SYNTAX     INTEGER (1..254)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates value of Virtual MAC ID for interface 1."
+        ::= { unifiedFailover 9 }
+
+failoverVmac2Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates Virtual MAC status for interface 2."
+        ::= { unifiedFailover 10 }
+
+failoverVmac2ID OBJECT-TYPE
+        SYNTAX     INTEGER (1..254)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates value of Virtual MAC ID for interface 2."
+        ::= { unifiedFailover 11 }
+
+failoverVmac3Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates Virtual MAC status for interface 3."
+        ::= { unifiedFailover 12 }
+
+failoverVmac3ID OBJECT-TYPE
+        SYNTAX     INTEGER (1..254)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates value of Virtual MAC ID for interface 3."
+        ::= { unifiedFailover 13 }
+
+failoverVmac4Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates Virtual MAC status for interface 4."
+        ::= { unifiedFailover 14 }
+
+failoverVmac4ID OBJECT-TYPE
+        SYNTAX     INTEGER (1..254)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates value of Virtual MAC ID for interface 4."
+        ::= { unifiedFailover 15 }
+
+failoverLinkCheck1Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether link failure checking is enabled
+			 on Interface 1 or not."
+        ::= { unifiedFailover 16 }
+
+failoverLinkCheck2Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether link failure checking is enabled
+			 on Interface 2 or not."
+        ::= { unifiedFailover 17 }
+
+failoverLinkCheck3Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether link failure checking is enabled
+			 on Interface 3 or not."
+        ::= { unifiedFailover 18 }
+
+failoverLinkCheck4Status OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether link failure checking is enabled
+			 on Interface 4 or not."
+        ::= { unifiedFailover 19 }
+
+failoverListenPort OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Port used for sending/receiving ADFP packets.
+			Unified Failover will listen on 
+			failoverListenPort:failoverListenTransport. These 
+			settings are advertised to all peers, so that they
+			know how to contact us."
+        ::= { unifiedFailover 20 }
+
+failoverListenIP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the IP address used to listen for ADFP packets.
+			This IP address decides the interface on which we will
+			listen for ADFP packets. The value 'any' can be used to
+			bind to all interfaces."
+        ::= { unifiedFailover 21 }
+
+failoverListenTransport OBJECT-TYPE
+        SYNTAX     INTEGER { tcp(1), udp(2), ssl(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the protocol used for exchanging ADFP packets.
+			 Presently only UDP is supported. 
+			 Support for this object is optional."
+        ::= { unifiedFailover 22 }
+
+
+-- Peer Table
+-- Define the table containing list of all configured peers
+
+failoverPeerTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF FailoverPeerEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+            "This is the list of all static peers configured."
+    ::= { unifiedFailover 23 }
+
+failoverPeerEntry OBJECT-TYPE
+    SYNTAX  FailoverPeerEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+            "All information about a peer (configured statically)."
+    INDEX   { failoverPeerIP }
+    ::= { failoverPeerTable 1 }
+
+FailoverPeerEntry ::= 
+    SEQUENCE {
+        failoverPeerIP 
+            IpAddress,
+        failoverPeerListenPort
+            INTEGER,
+        failoverPeerListenTransport
+            INTEGER,
+        failoverPeerStatus
+            INTEGER
+	}
+
+failoverPeerIP OBJECT-TYPE
+    SYNTAX  IpAddress
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+            "The IP address of this peer."
+    ::= { failoverPeerEntry 1 }
+
+
+failoverPeerListenPort OBJECT-TYPE
+        SYNTAX     INTEGER ( 1..65535 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Port used by peer for sending/receiving ADFP packets."
+        ::= { failoverPeerEntry 2 }
+
+failoverPeerListenTransport OBJECT-TYPE
+        SYNTAX     INTEGER { tcp(1), udp(2), ssl(3) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates the protocol used for exchanging ADFP packets.
+			 Presently only UDP is supported. 
+			 Support for this object is optional."
+        ::= { failoverPeerEntry 3 }
+
+failoverPeerStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates this entry is valid or not. If this entry
+			 is not valid, then this peer will not be used for failover."
+        ::= { failoverPeerEntry 4 }
+
+
+failoverServiceInterval OBJECT-TYPE
+        SYNTAX     Integer32 ( 1..60 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Interval (in seconds) at which failover process checks the
+			status of a failed service. As soon as the failover process
+			finds that a service is not running, it sets a timer for
+			failoverServiceInterval seconds. When the timer expires,
+			it agains checks the status of the service. This way, if
+			the service is restarts are excluded from service failures."
+        ::= { unifiedFailover 24 }
+
+
+failoverStickyStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Sticky failover status."
+        ::= { unifiedFailover 25 }
+
+failoverStickySyncInterval OBJECT-TYPE
+        SYNTAX     INTEGER ( 1..60 )
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+			 "Interval in seconds at which delta sync. will happen
+              Sticky failover."
+        ::= { unifiedFailover 26 }
+
+
+---------------------------------------------------------------------------
+-- GSLB
+---------------------------------------------------------------------------
+
+gslb OBJECT IDENTIFIER ::= { dxConfig 13 }
+
+
+gslbAgent OBJECT IDENTIFIER ::= { gslb 1 }
+
+gslbAgentStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the GSLB Agent is
+             enabled(1) or disabled(0)."
+        ::= { gslbAgent 1 }
+
+gslbAgentListenVIP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen VIP Address of the GSLB Agent."
+        ::= { gslbAgent 2 }
+
+gslbAgentListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen port of the GSLB Agent."
+        ::= { gslbAgent 3 }
+
+gslbAgentEncryptionStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the encryption is
+             enabled(1) or disabled(0) for the GSLB Agent."
+        ::= { gslbAgent 4 }
+
+
+gslbRemoteNode OBJECT IDENTIFIER ::= { gslb 2 }
+
+gslbRemoteNodeTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF GslbRemoteNodeEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the GSLB RemoteNodes."
+        ::= { gslbRemoteNode 1 }
+
+gslbRemoteNodeEntry OBJECT-TYPE
+        SYNTAX     GslbRemoteNodeEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the gslbRemoteNodeTable."
+        INDEX      { gslbRemoteNodeUUID }
+        ::= { gslbRemoteNodeTable 1 }
+
+GslbRemoteNodeEntry ::=
+		SEQUENCE {
+			gslbRemoteNodeUUID
+				DisplayString,
+
+			gslbRemoteNodeName
+				DisplayString,
+
+			gslbRemoteNodeListenVIP
+				DisplayString,
+
+			gslbRemoteNodeListenPort
+				Integer32,
+
+			gslbRemoteNodeEncryptionStatus
+				INTEGER,
+
+			gslbRemoteNodeMetricInterval
+				Integer32,
+
+			gslbRemoteNodeTimeout
+				Integer32
+		}
+
+gslbRemoteNodeUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The unique UUID of a RemoteNode, used to index into the table."
+        ::= { gslbRemoteNodeEntry 1 }
+
+gslbRemoteNodeName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of this RemoteNode."
+        ::= { gslbRemoteNodeEntry 2 }
+
+gslbRemoteNodeListenVIP OBJECT-TYPE
+		SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen VIP Address of this RemoteNode."
+        ::= { gslbRemoteNodeEntry 3 }
+
+gslbRemoteNodeListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen port of this RemoteNode."
+        ::= { gslbRemoteNodeEntry 4 }
+
+gslbRemoteNodeEncryptionStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the encryption is
+             enabled(1) or disabled(0) for this RemoteNode."
+        ::= { gslbRemoteNodeEntry 5 }
+
+gslbRemoteNodeMetricInterval OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The time between sending metric packets to this RemoteNode."
+        ::= { gslbRemoteNodeEntry 6 }
+
+gslbRemoteNodeTimeout OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The timeout for waiting for a response from this RemoteNode."
+        ::= { gslbRemoteNodeEntry 7 }
+
+
+gslbResolver OBJECT IDENTIFIER ::= { gslb 3 }
+
+gslbResolverTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF GslbResolverEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the GSLB Resolvers."
+        ::= { gslbResolver 1 }
+
+gslbResolverEntry OBJECT-TYPE
+        SYNTAX     GslbResolverEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the gslbResolverTable."
+        INDEX      { gslbResolverUUID }
+        ::= { gslbResolverTable 1 }
+
+GslbResolverEntry ::=
+		SEQUENCE {
+			gslbResolverUUID
+				DisplayString,
+
+			gslbResolverName
+				DisplayString,
+
+			gslbResolverStatus
+				INTEGER,
+
+			gslbResolverListenVIP
+				DisplayString,
+
+			gslbResolverListenPort
+				Integer32,
+
+			gslbResolverTargetIP
+				DisplayString
+		}
+
+gslbResolverUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The unique UUID of a Resolver, used to index into the table."
+        ::= { gslbResolverEntry 1 }
+
+gslbResolverName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of this Resolver."
+        ::= { gslbResolverEntry 2 }
+
+gslbResolverStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the Resolver is
+             enabled(1) or disabled(0)."
+        ::= { gslbResolverEntry 3 }
+
+gslbResolverListenVIP OBJECT-TYPE
+		SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen VIP Address of this Resolver."
+        ::= { gslbResolverEntry 4 }
+
+gslbResolverListenPort OBJECT-TYPE
+        SYNTAX     Integer32 (1..65535)
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The listen port of this Resolver."
+        ::= { gslbResolverEntry 5 }
+
+gslbResolverTargetIP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The DNS target server for this Resolver."
+        ::= { gslbResolverEntry 6 }
+
+
+gslbGroup OBJECT IDENTIFIER ::= { gslb 4 }
+
+gslbGroupTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF GslbGroupEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the GSLB Resolver Groups."
+        ::= { gslbGroup 1 }
+
+gslbGroupEntry OBJECT-TYPE
+        SYNTAX     GslbGroupEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the gslbGroupTable."
+        INDEX      { gslbGroupResolverUUID, gslbGroupUUID }
+        ::= { gslbGroupTable 1 }
+
+GslbGroupEntry ::=
+		SEQUENCE {
+			gslbGroupResolverUUID
+				DisplayString,
+
+			gslbGroupUUID
+				DisplayString,
+
+			gslbGroupResolverName
+				DisplayString,
+
+			gslbGroupName
+				DisplayString,
+
+			gslbGroupDNSHostname
+				DisplayString,
+
+			gslbGroupDNSTTL
+				Integer32,
+
+			gslbGroupDNSAuthDomainName
+				DisplayString,
+
+			gslbGroupDNSAuthServerName
+				DisplayString,
+
+			gslbGroupDNSAnswerMode
+				INTEGER,
+
+			gslbGroupLBAPolicy
+				INTEGER,
+
+			gslbGroupLBAStickyStatus
+				INTEGER,
+
+			gslbGroupLBAStickyTimeout
+				Integer32,
+
+			gslbGroupLBAStickyNetmask
+				DisplayString,
+
+			gslbGroupLBAStickyMax
+				Integer32,
+
+			gslbGroupFailIP
+				DisplayString,
+
+			gslbGroupMetricSmoothing
+				INTEGER,
+
+			gslbGroupConnsMax
+				Integer32,
+
+			gslbGroupConnsWeight
+				Integer32,
+
+			gslbGroupSessionsMax
+				Integer32,
+
+			gslbGroupSessionsWeight
+				Integer32,
+
+			gslbGroupByteRateMax
+				Integer32,
+
+			gslbGroupByteRateWeight
+				Integer32,
+
+			gslbGroupMemUsageMax
+				Integer32,
+
+			gslbGroupMemUsageWeight
+				Integer32,
+
+			gslbGroupCPUUsageMax
+				Integer32,
+
+			gslbGroupCPUUsageWeight
+				Integer32,
+
+			gslbGroupTHostAvailMin
+				Integer32,
+
+			gslbGroupTHostAvailWeight
+				Integer32,
+
+			gslbGroupRTTMax
+				Integer32,
+
+			gslbGroupRTTTimeout
+				Integer32,
+
+			gslbGroupRTTCount
+				Integer32,
+
+			gslbGroupRTTNetmask
+				DisplayString,
+
+			gslbGroupRTTWeight
+				Integer32
+		}
+
+gslbGroupResolverUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The UUID of the Resolver this group belongs to, also used to index into the table."
+        ::= { gslbGroupEntry 1 }
+
+gslbGroupUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The unique UUID of a ResolverGroup, used to index into the table."
+        ::= { gslbGroupEntry 2 }
+
+gslbGroupResolverName OBJECT-TYPE
+        SYNTAX     DisplayString
+        -- MAX-ACCESS read-only
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of the Resolver this group belongs to, provided for display purposes."
+        ::= { gslbGroupEntry 3 }
+
+gslbGroupName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of the group."
+        ::= { gslbGroupEntry 4 }
+
+gslbGroupDNSHostname OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The DNS hostname."
+        ::= { gslbGroupEntry 5 }
+
+gslbGroupDNSTTL OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The DNS TTL."
+        ::= { gslbGroupEntry 6 }
+
+gslbGroupDNSAuthDomainName OBJECT-TYPE
+		SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The authdomain name."
+        ::= { gslbGroupEntry 7 }
+
+gslbGroupDNSAuthServerName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The authserver name."
+        ::= { gslbGroupEntry 8 }
+
+gslbGroupDNSAnswerMode OBJECT-TYPE
+        SYNTAX     INTEGER { single(0), multiple(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The answermode for this ResolverGroup, indicating whether it will
+return single(0) or multiple(1) entries in a DNS answer record."
+        ::= { gslbGroupEntry 9 }
+
+gslbGroupLBAPolicy OBJECT-TYPE
+        SYNTAX     INTEGER {
+			forward(0),
+			fixed(1),
+			random(2),
+			roundrobin(3),
+			weightedroundrobin(4),
+			metric(5)
+		}
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The loadbalancing policy for this ResolverGroup."
+        ::= { gslbGroupEntry 10 }
+
+gslbGroupLBAStickyStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The sticky status, disabled(0) or enabled(1)."
+        ::= { gslbGroupEntry 11 }
+
+gslbGroupLBAStickyTimeout OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The sticky timeout."
+        ::= { gslbGroupEntry 12 }
+
+gslbGroupLBAStickyNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The sticky netmask."
+        ::= { gslbGroupEntry 13 }
+
+gslbGroupLBAStickyMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The sticky max."
+        ::= { gslbGroupEntry 14 }
+
+gslbGroupFailIP OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The IP address to return in a DNS reply if all the group members
+are unavailable."
+        ::= { gslbGroupEntry 15 }
+
+gslbGroupMetricSmoothing OBJECT-TYPE
+        SYNTAX     INTEGER { low(0), medium(1), high(2) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The metric smoothing."
+        ::= { gslbGroupEntry 16 }
+
+gslbGroupConnsMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric connections max."
+        ::= { gslbGroupEntry 17 }
+
+gslbGroupConnsWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric connections weight."
+        ::= { gslbGroupEntry 18 }
+
+gslbGroupSessionsMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric sessions max."
+        ::= { gslbGroupEntry 19 }
+
+gslbGroupSessionsWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric sessions weight."
+        ::= { gslbGroupEntry 20 }
+
+gslbGroupByteRateMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric byterate max."
+        ::= { gslbGroupEntry 21 }
+
+gslbGroupByteRateWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric byterate weight."
+        ::= { gslbGroupEntry 22 }
+
+gslbGroupMemUsageMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric memusage max."
+        ::= { gslbGroupEntry 23 }
+
+gslbGroupMemUsageWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric memusage weight."
+        ::= { gslbGroupEntry 24 }
+
+gslbGroupCPUUsageMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric cpuusage max."
+        ::= { gslbGroupEntry 25 }
+
+gslbGroupCPUUsageWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric cpuusage weight."
+        ::= { gslbGroupEntry 26 }
+
+gslbGroupTHostAvailMin OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric targethost available min."
+        ::= { gslbGroupEntry 27 }
+
+gslbGroupTHostAvailWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Metric targethost available weight."
+        ::= { gslbGroupEntry 28 }
+
+gslbGroupRTTMax OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "RTT maximum wait time."
+        ::= { gslbGroupEntry 29 }
+
+gslbGroupRTTTimeout OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "RTT timeout."
+        ::= { gslbGroupEntry 30 }
+
+gslbGroupRTTCount OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "number of RTT probes per LDNS."
+        ::= { gslbGroupEntry 31 }
+
+gslbGroupRTTNetmask OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "RTT Netmask."
+        ::= { gslbGroupEntry 32 }
+
+gslbGroupRTTWeight OBJECT-TYPE
+        SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "RTT Weight."
+        ::= { gslbGroupEntry 33 }
+
+
+gslbMember OBJECT IDENTIFIER ::= { gslb 5 }
+
+gslbMemberTable OBJECT-TYPE
+        SYNTAX     SEQUENCE OF GslbMemberEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The (conceptual) table listing all the GSLB ResolverGroupMembers."
+        ::= { gslbMember 1 }
+
+gslbMemberEntry OBJECT-TYPE
+        SYNTAX     GslbMemberEntry
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "An entry (conceptual row) in the gslbMemberTable."
+        INDEX      { gslbMemberResolverUUID,
+					 gslbMemberGroupUUID,
+					 gslbMemberUUID }
+        ::= { gslbMemberTable 1 }
+
+GslbMemberEntry ::=
+		SEQUENCE {
+			gslbMemberResolverUUID
+				DisplayString,
+
+			gslbMemberGroupUUID
+				DisplayString,
+
+			gslbMemberUUID
+				DisplayString,
+
+			gslbMemberResolverName
+				DisplayString,
+
+			gslbMemberGroupName
+				DisplayString,
+
+			gslbMemberName
+				DisplayString,
+
+			gslbMemberIPAddr
+				DisplayString,
+
+			gslbMemberWeight
+				Integer32
+		}
+
+gslbMemberResolverUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The UUID of the resolver this member belongs to, used to index into the table."
+        ::= { gslbMemberEntry 1 }
+
+gslbMemberGroupUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The UUID of the group this member belongs to, used to index into the table."
+        ::= { gslbMemberEntry 2 }
+
+gslbMemberUUID OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS not-accessible
+        STATUS     current
+        DESCRIPTION
+            "The unique UUID of a ResolverGroupMember, used to index into the table."
+        ::= { gslbMemberEntry 3 }
+
+gslbMemberResolverName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of the resolver this member belongs to, provided for
+display purposes."
+        ::= { gslbMemberEntry 4 }
+
+gslbMemberGroupName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of the group this member belongs to, provided for
+display purposes."
+        ::= { gslbMemberEntry 5 }
+
+gslbMemberName OBJECT-TYPE
+        SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The name of this member."
+        ::= { gslbMemberEntry 6 }
+
+gslbMemberIPAddr OBJECT-TYPE
+		SYNTAX     DisplayString
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The DNS IP Address of this member."
+        ::= { gslbMemberEntry 7 }
+
+gslbMemberWeight OBJECT-TYPE
+		SYNTAX     Integer32
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "The weight of this member."
+        ::= { gslbMemberEntry 8 }
+
+
+---------------------------------------------------------------------------
+-- Server Compression (the "set server compression" CLI tree)
+---------------------------------------------------------------------------
+serverCompression OBJECT IDENTIFIER ::= { dxConfig 14 }
+
+compressionPDFStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether compression is enabled(1)
+             or disabled(0). for pdf documents"
+        ::= { serverCompression 1 }
+
+compressionSharePointStatus OBJECT-TYPE
+        SYNTAX     INTEGER { disabled(0), enabled(1) }
+        MAX-ACCESS read-only
+        STATUS     current
+        DESCRIPTION
+            "Indicates whether the compression is enabled(1)
+             or disabled(0) for Microsoft Sharepoint."
+        ::= { serverCompression 2 }
+
+
+END
+

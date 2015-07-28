@@ -1,0 +1,116 @@
+DX-TRAPv2-MIB DEFINITIONS ::= BEGIN
+
+-- Title:   DX-TRAPv2-MIB 
+-- Date:    October 13, 2003
+-- By:      Jim Tosh <jtosh@juniper.net>
+--
+-- $Rl: DX-TRAPv2-MIB.txt,v 1.5.20.1 2007/10/20 17:33:05 atul Exp $
+--
+-- Note: this MIB is Read-Only.
+--
+
+IMPORTS MODULE-IDENTITY, OBJECT-IDENTITY, NOTIFICATION-TYPE
+                FROM SNMPv2-SMI
+        DisplayString 
+                FROM SNMPv2-TC
+        juniperDX, dx
+                FROM DX-MIB;
+
+---------------------------------------------------------------------------
+-- All the Juniper DX enterprise trap mib definitions. 
+---------------------------------------------------------------------------
+dxV2Traps MODULE-IDENTITY
+    LAST-UPDATED "200508032326Z"
+    ORGANIZATION "Juniper Networks, Inc."
+    CONTACT-INFO 
+        "Contact: Juniper Networks Support
+         Web: www.juniper.net
+         Email: support@juniper.net
+         Phone: 1.888.JUNIPER (888-586-4737) (Toll Free)
+                1.408.745.2000 (Main)
+                1.408.745.2100 (Fax)
+         Postal: Juniper Networks Inc.,
+                1194 North Mathilda Avenue
+                Sunnyvale, California 94089-1206 
+                USA"
+    DESCRIPTION
+        "The notification (Trap) MIB module for DX product of
+         Juniper Networks, Inc.
+         Copyright 2003-2005 Redline Networks, Inc. All rights reserved.
+         Copyright 2005 Juniper Networks, Inc. All rights reserved."
+
+    REVISION	"200305132325Z"
+    DESCRIPTION
+        "Initial Version - just a conversion of the SMIv1 Trap MIB"
+
+    ::= { dx 5 }
+
+vipStateUp NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the current VIP state is up."
+    ::= { dxV2Traps 1 }
+
+vipStateDown NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the current VIP state is down."
+    ::= { dxV2Traps 2 }
+
+targetServerStateUp NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the current target server state is up."
+    ::= { dxV2Traps 3 }
+
+targetServerStateDown NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the current target server state is down."
+    ::= { dxV2Traps 4 }
+
+failoverStateActive NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the DX is running in Active mode."
+    ::= { dxV2Traps 5 }
+
+userAutheniticationFailure NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+      "This trap is generated when the user login failure threshold limit is reached."
+   ::= { dxV2Traps 6 }
+
+connectionThresholdTrap NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that user defined maximum connection threshold limit is reached."
+    ::= { dxV2Traps 7 }
+
+failoverDueToHealth NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+         "This trap indicates that the DX is failing over
+          due to a remotehost healthcheck failure."
+    ::= { dxV2Traps 9 }
+
+failoverStateStandby NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the DX is running in Standby mode."
+    ::= { dxV2Traps 10 }
+
+
+failoverStateMaster NOTIFICATION-TYPE
+    STATUS current
+    DESCRIPTION
+        "This trap indicates that the DX is running in Master mode."
+    ::= { dxV2Traps 11 }
+
+failoverStateIdle NOTIFICATION-TYPE
+	STATUS current
+	DESCRIPTION
+			"This trap indicates that the DX is running in Idle mode."
+    ::= { dxV2Traps 12 }
+
+END

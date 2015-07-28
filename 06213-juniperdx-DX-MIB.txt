@@ -1,0 +1,89 @@
+DX-MIB DEFINITIONS ::= BEGIN
+
+-- Title:	DX-MIB for SNMPv2
+-- Date:	Mar 26, 2003
+-- By:		Yogendra Singh <yogi@juniper.net>
+--
+-- $Rl: DX-MIB.txt,v 1.3 2005/11/04 04:15:18 srsewall Exp $`
+--
+-- Note: this MIB is Read-Only.
+--
+
+IMPORTS MODULE-IDENTITY, OBJECT-TYPE, enterprises
+               FROM SNMPv2-SMI
+        DisplayString 
+               FROM SNMPv2-TC;
+
+
+juniperDX  MODULE-IDENTITY
+    LAST-UPDATED "200508032326Z"
+    ORGANIZATION "Juniper Networks, Inc."
+    CONTACT-INFO 
+        "Contact: Juniper Networks Support
+         Web: www.juniper.net
+         Email: support@juniper.net
+         Phone: 1.888.JUNIPER (888-586-4737) (Toll Free)
+                1.408.745.2000 (Main)
+                1.408.745.2100 (Fax)
+         Postal: Juniper Networks Inc.,
+                1194 North Mathilda Avenue
+                Sunnyvale, California 94089-1206 
+                 USA"
+    DESCRIPTION
+        "The MIB module for the DX product of
+         Juniper Networks, Inc.
+         Copyright 2003-2005 Redline Networks, Inc. All rights reserved.
+         Copyright 2005 Juniper Networks, Inc. All rights reserved."
+
+    REVISION	"200305310035Z"
+    DESCRIPTION
+        "Initial Version"
+
+    ::= { enterprises 6213 }
+
+
+---------------------------------------------------------------------------
+-- the DX Product group
+---------------------------------------------------------------------------
+dx OBJECT IDENTIFIER ::= { juniperDX 2 }
+
+mibVersion OBJECT-TYPE
+    SYNTAX     DisplayString
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+                "Juniper DX MIB Version."
+        ::= { dx 1 }
+
+product OBJECT IDENTIFIER ::= { dx 2 }
+
+productName OBJECT-TYPE
+    SYNTAX     DisplayString
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+                "Juniper DX product name." 
+        ::= { product 1 }
+
+productID OBJECT-TYPE
+    SYNTAX     INTEGER { 
+                    none(0), 
+                    tx(1), 
+                    ex(2),
+                    dx(3) 
+                }
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+                "Juniper DX product ID." 
+        ::= { product 2 }
+
+dxproductVersion OBJECT-TYPE
+    SYNTAX     DisplayString
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+                "Juniper DX product version." 
+        ::= { product 3 }
+
+END
