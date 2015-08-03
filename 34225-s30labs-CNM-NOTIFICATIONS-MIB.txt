@@ -1,0 +1,122 @@
+CNM-NOTIFICATIONS-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+        enterprises             FROM RFC1155-SMI
+        Counter                 FROM RFC1155-SMI
+        Gauge                   FROM RFC1155-SMI
+        DisplayString           FROM RFC1213-MIB
+        OBJECT-TYPE             FROM RFC-1212
+        TRAP-TYPE               FROM RFC-1215
+        sysName                 FROM RFC1213-MIB
+        OBJECT-TYPE      		  FROM RFC-1212;
+
+          -- textual conventions
+
+          DisplayString ::=
+              OCTET STRING
+          -- This data type is used to model textual information taken
+          -- from the NVT ASCII character set.  By convention, objects
+          -- with this syntax are declared as having
+          --
+          --      SIZE (0..255)
+
+
+
+   s30labs           OBJECT IDENTIFIER ::= { enterprises 34225 }
+	
+   cnmNotif   	OBJECT IDENTIFIER ::= { s30labs 1 }
+
+   cnmNotifBase   	OBJECT IDENTIFIER ::= { cnmNotif 1 }
+   cnmNotifData 	OBJECT IDENTIFIER ::= { s30labs 102 }
+
+
+-- --------------------------------------------------------
+-- OIDS para el varbind data de cnmTrapsCustom
+-- --------------------------------------------------------
+cnmNotifCode OBJECT-TYPE
+         SYNTAX      INTEGER
+         ACCESS      read-only
+         STATUS      mandatory
+         DESCRIPTION
+            "Cadena de texto con un codigo sobre el trap."
+         ::= { cnmNotifData 1 }
+
+
+cnmNotifMsg  OBJECT-TYPE
+         SYNTAX      DisplayString
+         ACCESS      read-only
+         STATUS      mandatory
+         DESCRIPTION
+            "Texto del trap."
+         ::= { cnmNotifData 2 }
+
+cnmNotifKey  OBJECT-TYPE
+         SYNTAX      DisplayString
+         ACCESS      read-only
+         STATUS      mandatory
+         DESCRIPTION
+            "Clave para dar unicidad al trap."
+         ::= { cnmNotifData 3 }
+
+
+-- --------------------------------------------------------
+-- TRAP-TYPEs Definidos
+-- --------------------------------------------------------
+cnmAlarmSet NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+           "Este trap se genera cuando se produce una condicion de alerta generica.
+				La informacion de la misma se encuentra en los datos (TrapCode,TrapMsg)"
+    ::= { cnmNotifBase 1 }
+
+cnmAlarmClear NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+           "Este trap se genera cuando se termina una condicion de alerta generica.
+            La informacion de la misma se encuentra en los datos (TrapCode,TrapMsg)"
+    ::= { cnmNotifBase 2 }
+
+cnmInfoMsg NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+           "Este trap se genera cuando el sistema necesita enviar algun mensaje.
+            La informacion de la misma se encuentra en los datos (TrapCode,TrapMsg)"
+    ::= { cnmNotifBase 3 }
+
+
+-- --------------------------------------------------------
+cnmNotifNoLinkSet NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+       		"Este trap se genera cuando se detecta que no hay link en el interfaz Ethernet. Lo mas probable es que se haya quitado el cable de red o el puerto del switch este deshabilitado. Si no es asi, revisar la placa de red del CNM por si hubiera un problema hardware"
+    ::= { cnmNotifBase 100 }
+
+cnmNotiIFDownfSet NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+    			"Este trap se genera cuando se detecta que el interfaz Ethernet de trabajo esta caido o deshabilitado desde el sistema operativo del CNM"
+    ::= { cnmNotifBase 102 }
+
+-- --------------------------------------------------------
+cnmNotifMCNMBackupFailure NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+            "Este trap se genera cuando se ha producido un fallo durante el backup del appliance"
+    ::= { cnmNotifBase 103 }
+
+-- --------------------------------------------------------
+cnmNotifMCNMNoAccessToRemote NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+            "Este trap se genera cuando el CNM Central (Proxy) en un entorno Multi CNM no detecta un CNM remoto"
+    ::= { cnmNotifBase 110 }
+
+
+-- --------------------------------------------------------
+cnmNotifLogFileGetErrorSet NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+            "Este trap se genera cuando no se puede obtener un fichero de log remoto. Puede ser un problema de configuracion, de acceso al equipo remoto o de acceso al fichero (permisos, no existe etc...) "
+    ::= { cnmNotifBase 200 }
+
+END

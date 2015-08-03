@@ -1,0 +1,124 @@
+CNM-SENSORS-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+        enterprises             FROM RFC1155-SMI
+        Counter                 FROM RFC1155-SMI
+        Gauge                   FROM RFC1155-SMI
+        DisplayString           FROM RFC1213-MIB
+        OBJECT-TYPE             FROM RFC-1212
+        TRAP-TYPE               FROM RFC-1215
+        sysName                 FROM RFC1213-MIB
+        OBJECT-TYPE             FROM RFC-1212;
+
+          -- textual conventions
+
+          DisplayString ::=
+              OCTET STRING
+          -- This data type is used to model textual information taken
+          -- from the NVT ASCII character set.  By convention, objects
+          -- with this syntax are declared as having
+          --
+          --      SIZE (0..255)
+
+
+
+   s30labs			OBJECT IDENTIFIER ::= { enterprises 34225 }
+
+   s30Products   	OBJECT IDENTIFIER ::= { s30labs 99 }
+   cnmSensors    	OBJECT IDENTIFIER ::= { s30labs 200 }
+
+   cnmSensorsT    OBJECT IDENTIFIER ::= { cnmSensors 1 }
+   cnmSensorsTH   OBJECT IDENTIFIER ::= { cnmSensors 2 }
+
+   cnmSensorsTHA  OBJECT IDENTIFIER ::= { cnmSensorsTH 1 }
+   cnmSensorsTHB  OBJECT IDENTIFIER ::= { cnmSensorsTH 2 }
+
+
+-- --------------------------------------------------------
+cnmSensorTH2 OBJECT IDENTIFIER ::= { s30Products 1 }
+
+
+-- --------------------------------------------------------
+cnmSensorTH01AModel OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+   	"Sensor Model. "
+    ::= { cnmSensorsTHA 1 }
+
+cnmSensorTH01AStatus OBJECT-TYPE
+    SYNTAX  INTEGER {
+                ok(0), 
+                error(1)
+            }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "SensorStatus "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHA 2 }
+
+cnmSensorTH01ATemperature OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "Temperature value. "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHA 3 }
+
+cnmSensorTH01AHumidity OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "Humidity value. "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHA 4 }
+
+
+-- --------------------------------------------------------
+cnmSensorTH01BModel OBJECT-TYPE
+    SYNTAX      DisplayString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "Sensor Model. "
+    ::= { cnmSensorsTHB 1 }
+
+cnmSensorTH01BStatus OBJECT-TYPE
+    SYNTAX  INTEGER {
+                ok(0),
+                error(1)
+            }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "SensorStatus "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHB 2 }
+
+cnmSensorTH01BTemperature OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "Temperature value. "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHB 3 }
+
+cnmSensorTH01BHumidity OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+      "Humidity value. "
+    DEFVAL { 0 }
+    ::= { cnmSensorsTHB 4 }
+
+
+
+
+
+END

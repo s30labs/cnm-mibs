@@ -1,0 +1,101 @@
+CNM-TRAPS-MIB DEFINITIONS ::= BEGIN
+
+    IMPORTS
+        enterprises             FROM RFC1155-SMI
+        Counter                 FROM RFC1155-SMI
+        Gauge                   FROM RFC1155-SMI
+        DisplayString           FROM RFC1213-MIB
+        OBJECT-TYPE             FROM RFC-1212
+        TRAP-TYPE               FROM RFC-1215
+        sysName                 FROM RFC1213-MIB
+        OBJECT-TYPE      		  FROM RFC-1212;
+
+          -- textual conventions
+
+          DisplayString ::=
+              OCTET STRING
+          -- This data type is used to model textual information taken
+          -- from the NVT ASCII character set.  By convention, objects
+          -- with this syntax are declared as having
+          --
+          --      SIZE (0..255)
+
+
+
+   s30labs           OBJECT IDENTIFIER ::= { enterprises 34225 }
+	
+   cnmTraps   	OBJECT IDENTIFIER ::= { s30labs 0 }
+
+   cnmTrapsBase   	OBJECT IDENTIFIER ::= { cnmTraps 1 }
+   cnmTrapsData 	OBJECT IDENTIFIER ::= { s30labs 101 }
+
+
+-- --------------------------------------------------------
+-- OIDS para el varbind data de cnmTrapsCustom
+-- --------------------------------------------------------
+cnmTrapCode OBJECT-TYPE
+         SYNTAX      INTEGER
+         ACCESS      read-only
+         STATUS      mandatory
+         DESCRIPTION
+            "Cadena de texto con un codigo sobre el trap."
+         ::= { cnmTrapsData 1 }
+
+
+cnmTrapMsg  OBJECT-TYPE
+         SYNTAX      DisplayString
+         ACCESS      read-only
+         STATUS      mandatory
+         DESCRIPTION
+            "Texto del trap."
+         ::= { cnmTrapsData 2 }
+
+
+-- --------------------------------------------------------
+-- TRAP-TYPEs Definidos
+-- --------------------------------------------------------
+cnmAlarmSet TRAP-TYPE
+    ENTERPRISE  cnmTrapsBase
+    VARIABLES   { cnmTrapCode, cnmTrapMsg }
+    DESCRIPTION
+           "Este trap se genera cuando se produce una condicion de alerta generica.
+				La informacion de la misma se encuentra en los datos (cnmTrapCode,cnmTrapMsg)"
+    ::= 1
+
+cnmAlarmClear TRAP-TYPE
+    ENTERPRISE  cnmTrapsBase
+    VARIABLES   { cnmTrapCode, cnmTrapMsg }
+    DESCRIPTION
+           "Este trap se genera cuando se termina una condicion de alerta generica.
+            La informacion de la misma se encuentra en los datos (cnmTrapCode,cnmTrapMsg)"
+    ::= 2
+
+cnmInfoMsg TRAP-TYPE
+    ENTERPRISE  cnmTrapsBase
+    VARIABLES   { cnmTrapCode, cnmTrapMsg }
+    DESCRIPTION
+           "Este trap se genera cuando el sistema necesita enviar algun mensaje.
+            La informacion de la misma se encuentra en los datos (cnmTrapCode,cnmTrapMsg)"
+    ::= 3
+
+
+
+
+-- --------------------------------------------------------
+cnmTrapNoLinkSet TRAP-TYPE
+    ENTERPRISE  cnmTrapsBase
+    VARIABLES   { cnmTrapCode, cnmTrapMsg }
+    DESCRIPTION
+           "Este trap se genera cuando se detecta que no hay link en el interfaz Ethernet"
+    ::= 100
+
+cnmTrapIFDownfSet TRAP-TYPE
+    ENTERPRISE  cnmTrapsBase
+    VARIABLES   { cnmTrapCode, cnmTrapMsg }
+    DESCRIPTION
+           "Este trap se genera cuando se detecta que el interfaz Ethernet de trabajo esta caido"
+    ::= 102
+
+
+END
+
