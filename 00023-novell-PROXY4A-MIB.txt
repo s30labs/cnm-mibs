@@ -1,0 +1,1149 @@
+       -- MIB_VERSION_NUMBER=1.0
+
+       IntranetWareProxyMIB DEFINITIONS ::= BEGIN
+
+       -- Copyright (C) 1996 Novell, Inc.
+       --
+       -- This MIB document is 'WORK IN PROGRESS' of Novell, Inc.
+       -- As such, it is subject to change, without notice, until
+       -- such time as it is formally released and moved from the
+       -- novell.experimental tree to the novell.mibDoc tree.
+       --
+       --
+       -- 9/10/96  N.V.Rao Initial draft
+       --
+
+       IMPORTS
+          enterprises, Counter, Gauge
+             FROM RFC1155-SMI
+
+          OBJECT-TYPE
+             FROM RFC-1212
+
+          DisplayString
+             FROM RFC1213-MIB;
+
+       novell         OBJECT IDENTIFIER ::= { enterprises 23 }
+       mibdoc         OBJECT IDENTIFIER ::= { novell 2 }
+       proxyCache     OBJECT IDENTIFIER ::= { mibdoc 66 }
+
+       --
+       -- Proxy Cache high level MIB groups
+       --
+       proxyInfo         OBJECT IDENTIFIER ::= { proxyCache 1 }
+       proxyStatistics   OBJECT IDENTIFIER ::= { proxyCache 2 }
+       proxySiteCache    OBJECT IDENTIFIER ::= { proxyCache 3 }
+       proxyDNSCache     OBJECT IDENTIFIER ::= { proxyCache 4 }
+
+       proxyVersion  OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Version number of the installed Proxy Cache server product.
+                  It contains the major, minor version number and revision
+                  number. The 1st 8 bits represent the major version,
+                  2nd 8 bits represent the minor version, 3rd 8 bits indicate
+                  the revision number."
+          ::= { proxyInfo 1 }
+       
+       proxyDescription OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..128))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Product description. Information like the location, the
+                  NetWare server it's installed on etc., can be put here."
+          ::= { proxyInfo 2 }
+
+       proxyUpTime  OBJECT-TYPE
+          SYNTAX TimeTicks
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The time proxy had been up and running."
+          ::= { proxyInfo 3 }
+
+       --
+       -- Proxy Cache statistics level MIB groups
+       --
+       proxyStatsDNSCache   OBJECT IDENTIFIER ::= { proxyStatistics 1 }
+       proxyStatsObjCache   OBJECT IDENTIFIER ::= { proxyStatistics 2 }
+       proxyStatsNeighbor   OBJECT IDENTIFIER ::= { proxyStatistics 3 }
+       proxyStatsHTTP       OBJECT IDENTIFIER ::= { proxyStatistics 4 }
+       proxyStatsGopher     OBJECT IDENTIFIER ::= { proxyStatistics 5 }
+       proxyStatsFTP        OBJECT IDENTIFIER ::= { proxyStatistics 6 }
+       proxyStatsConnect    OBJECT IDENTIFIER ::= { proxyStatistics 7 }
+       proxyStatsICP        OBJECT IDENTIFIER ::= { proxyStatistics 8 }
+
+       --
+       -- DNS Cache statistics
+       --
+
+       proxyStatsDNSCacheRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of DNS cache requests received. This counter is
+                  incremented everytime a request comes."
+          ::= { proxyStatsDNSCache 1 }
+
+       proxyStatsDNSCacheHit OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of DNS cache hits. This is incremented if the cache
+                  contains the entry for the request. This indicates the 
+                  efficiency of DNS caching. Tunable parameters could be the 
+                  limit on the maximum number of entries, expiration time etc."
+          ::= { proxyStatsDNSCache 2 }
+
+       proxyStatsDNSCacheMiss OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of DNS cache misses. This is incremented when the cache
+                  doesn't have an entry in the cache table to resolve it. Every
+                  time there is a miss, DNS query is made to resolve the name."
+          ::= { proxyStatsDNSCache 3 }
+
+       proxyStatsDNSCacheNegativeHit OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of negative cache hits. This counter is incremented
+                  everytime a request comes for name resolution, for which
+                  the resolution failed earlier and negative timer set for
+                  that entry."
+          ::= { proxyStatsDNSCache 4 }
+
+       proxyStatsDNSCacheErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This counter is incremented everytime a request comes for
+                  resolution for which the DNS query has failed or timed out
+                  etc."
+          ::= { proxyStatsDNSCache 5 }
+
+       proxyStatsDNSCacheTCPRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query requests sent over TCP."
+          ::= { proxyStatsDNSCache 6 }
+
+       proxyStatsDNSCacheTCPReplies OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query replies were received over TCP."
+          ::= { proxyStatsDNSCache 7 }
+
+       proxyStatsDNSCacheTCPTimeOuts OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query requests timed out over TCP."
+          ::= { proxyStatsDNSCache 8 }
+
+       proxyStatsDNSCacheUDPRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query requests sent over UDP."
+          ::= { proxyStatsDNSCache 9 }
+
+       proxyStatsDNSCacheUDPReplies OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query replies were received over UDP."
+          ::= { proxyStatsDNSCache 10 }
+
+       proxyStatsDNSCacheUDPTimeOuts OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times DNS query requests timed out over UDP."
+          ::= { proxyStatsDNSCache 11 }
+
+       --
+       -- Object cache statistics
+       --
+
+       proxyStatsObjCacheTotalObjCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of total objects currently cached. This includes both
+                  the hot and cold objects."
+          ::= { proxyStatsObjCache 1 }
+
+       proxyStatsObjCacheHotObjCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of objects whose data can be accessed immediately.
+                  These are also refered to as hot objects."
+          ::= { proxyStatsObjCache 2 }
+
+       proxyStatsObjCacheColdObjHit OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times the requested objects were hit or found 
+                  in the cache, which are cold."
+          ::= { proxyStatsObjCache 3 }
+
+       proxyStatsObjCacheHotObjHit OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times the requested objects were hit or found 
+                  in the cache, which are hot."
+          ::= { proxyStatsObjCache 4 }
+
+       proxyStatsObjCacheObjMiss OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times the requested objects were missed or not
+                  found in the cache."
+          ::= { proxyStatsObjCache 5 }
+
+       proxyStatsObjCacheDataXfered OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Total amount of object data transfered to browsers in Kbytes."
+          ::= { proxyStatsObjCache 6 }
+
+       proxyStatsObjCacheIcpFetchedData OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Amout of object data fetched from neighbors in Kbytes."
+          ::= { proxyStatsObjCache 7 }
+
+       proxyStatsObjCacheDirectFetchedData OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Amout of object data fetched from direct source in Kbytes."
+          ::= { proxyStatsObjCache 8 }
+
+       --
+       -- Neighbor statistics
+       --
+
+       proxyStatsNeighborEntryCount OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of neighbor entries in the neighbor table."
+          ::= { proxyStatsNeighbor 1 }
+
+       proxyStatsNeighborTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxyStatsNeighborEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxyStatsNeighborTable contains a list of statistics
+                  for all the configured neighbors. Each entry in this table
+                  is uniquely identified by the neighbor id."
+          ::= { proxyStatsNeighbor 2 }
+
+       proxyStatsNeighborEntry OBJECT-TYPE
+          SYNTAX ProxyStatsNeighborEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxyStatsNeighborTable."
+          INDEX  { proxyStatsNeighborNeighborName }
+          ::= { proxyStatsNeighborTable 1 }
+
+       ProxyStatsNeighborEntry ::= SEQUENCE {
+            proxyStatsNeighborNeighborName     DisplayString,
+            proxyStatsNeighborStatus           INTEGER,
+            proxyStatsNeighborType             INTEGER,
+            proxyStatsNeighborPingsSent        Counter,
+            proxyStatsNeighborPingsAcked       Counter,
+            proxyStatsNeighborObjectsFetched   Counter,
+            proxyStatsNeighborRoundTripTime    INTEGER,
+            proxyStatsNeighborLastFailTime     TimeTicks,
+            proxyStatsNeighborAddrCount        INTEGER,
+            proxyStatsNeighborBytesFetched     OCTET STRING
+          }
+
+       proxyStatsNeighborNeighborName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Neighbor name, a unique neighbor identifier for the chosen
+                  entry which is used to index into an entry in this table."
+          ::= { proxyStatsNeighborEntry 1 }
+
+       proxyStatsNeighborStatus OBJECT-TYPE
+          SYNTAX INTEGER {
+                 up (1),       -- the neighbor is available
+                 down (2)      -- the neighbor is not available
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Indicates whether this neighbor is operational or
+                  non-operational."
+          ::= { proxyStatsNeighborEntry 2 }
+
+       proxyStatsNeighborType OBJECT-TYPE
+          SYNTAX INTEGER {
+                 sibling (1),      -- the neighbor is a sibling 
+                 parent (2)        -- the neighbor is a parent
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Indicates whether this neighbor is parent or sibling."
+          ::= { proxyStatsNeighborEntry 3 }
+
+       proxyStatsNeighborPingsSent OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of pings sent to this neighbor by this Cache host
+                  since the proxy had been up." 
+          ::= { proxyStatsNeighborEntry 4 }
+
+       proxyStatsNeighborPingsAcked OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of responses received from this neighbor by this 
+                  Cache host since the proxy had been up." 
+          ::= { proxyStatsNeighborEntry 5 }
+
+       proxyStatsNeighborObjectsFetched OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of objects fetched from this neighbor by this 
+                  Cache host." 
+          ::= { proxyStatsNeighborEntry 6 }
+
+       proxyStatsNeighborRoundTripTime OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Average round trip response time from from this neighbor 
+                  to this Cache host." 
+          ::= { proxyStatsNeighborEntry 7 }
+
+       proxyStatsNeighborLastFailTime OBJECT-TYPE
+          SYNTAX TimeTicks
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Time, when the ping failed last time to this neighbor. The
+                  time is the number of seconds since midnight of January 1,
+                  1970."
+          ::= { proxyStatsNeighborEntry 8 }
+
+       proxyStatsNeighborAddrCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This object specifies the number of addresses assigned to
+                  this neighbor cache host."
+          ::= { proxyStatsNeighborEntry 9 }
+
+       proxyStatsNeighborBytesFetched OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This object specifies the amount of data fectched from this
+                  host in bytes."
+          ::= { proxyStatsNeighborEntry 10 }
+
+
+       proxyStatsNiborAddrTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxyNiborAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxyStatsNiborAddrTable contains a list of addresses
+                  assigned to this neighbor cache host.
+
+                  Since SNMP does not support nested tables (e.g. a table of
+                  addresses under a neighbor table), we need a separate table 
+                  where each entry is uniquely identified by the neighbor id 
+                  and address id."
+          ::= { proxyStatsNeighbor 3 }
+
+       proxyStatsNiborAddrEntry OBJECT-TYPE
+          SYNTAX ProxyStatsNiborAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxyStatsNiborAddrTable."
+         INDEX {proxyStatsNiborAddrNbrName, proxyStatsNiborAddrAddrType,
+                proxyStatsNiborAddrAddr }
+          ::= { proxyStatsNiborAddrTable 1 }
+
+       ProxyStatsNiborAddrEntry ::= SEQUENCE {
+            proxyStatsNiborAddrNbrName    DisplayString,
+            proxyStatsNiborAddrAddrType   INTEGER,
+            proxyStatsNiborAddrAddr       OCTET STRING
+          }
+
+       proxyStatsNiborAddrNbrName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Neighbor name, a unique neighbor identifier for the chosen
+                  entry which is used to index into an entry in neighbor table."
+          ::= { proxyStatsNiborAddrEntry 1 }
+
+       proxyStatsNiborAddrAddrType OBJECT-TYPE
+          SYNTAX INTEGER {
+                 ip (1),       -- IP address
+                 ip-v6 (2),    -- IP-V6 address
+                 ipx (3)       -- IPX address
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Unique value specifies the type of the address."
+          ::= { proxyStatsNiborAddrEntry 2 }
+
+       proxyStatsNiborAddrAddr OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (20))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Address of the neighbor cache host."
+          ::= { proxyStatsNiborAddrEntry 3 }
+
+       --
+       -- Connection usage statistics
+       --
+
+       proxyStatsConnectTotalConnectionBlocks OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the total number of connection blocks 
+                  allocated."
+          ::= { proxyStatsConnect 1 }
+
+       proxyStatsConnectActiveConnections OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of active connections at a given
+                  time."
+          ::= { proxyStatsConnect 2 }
+
+       proxyStatsConnectIdlePersistentServerConnects OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of server connections which are
+                  persistent and idle."
+          ::= { proxyStatsConnect 3 }
+
+       proxyStatsConnectIdlePersistentClientConnects OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of client connections which are
+                  persistent and idle."
+          ::= { proxyStatsConnect 4 }
+
+       proxyStatsConnectTotalRequestBlocks OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the total number of Request blocks 
+                  allocated."
+          ::= { proxyStatsConnect 5 }
+
+       proxyStatsConnectTotalSendECBs OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the total number of transmit ECBs allocated."
+          ::= { proxyStatsConnect 6 }
+
+       proxyStatsConnectTotalSendFragments OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the total number of send fragments allocated."
+          ::= { proxyStatsConnect 7 }
+
+       --
+       -- HTTP server/client statistics
+       --
+
+       proxyStatsHttpServerRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of HTTP requests received by HTTP
+                  server."
+          ::= { proxyStatsHTTP 1 }
+
+       proxyStatsHttpServerActiveRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of active HTTP requests currently
+		  processed by HTTP server."
+          ::= { proxyStatsHTTP 2 }
+
+       proxyStatsHttpServerErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of errors returned by HTTP server."
+          ::= { proxyStatsHTTP 3 }
+
+       proxyStatsHttpClientFillCacheRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of cache fill requests received by
+                  HTTP client."
+          ::= { proxyStatsHTTP 4 }
+
+       proxyStatsHttpClientPassThroughRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of pass through requests received
+                  by HTTP client."
+          ::= { proxyStatsHTTP 5 }
+
+       proxyStatsHttpClientActiveRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of active HTTP clients at a given
+                  time."
+          ::= { proxyStatsHTTP 6 }
+
+       proxyStatsHttpClientRetries OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of retries made by HTTP client to
+                  connect to the origin."
+          ::= { proxyStatsHTTP 7 }
+
+       proxyStatsHttpClientErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of errors returned by HTTP client."
+          ::= { proxyStatsHTTP 8 }
+
+       --
+       -- Gopher client statistics
+       --
+
+       proxyStatsGopherClientFillCacheRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of cache fill requests received by
+                  Gopher client."
+          ::= { proxyStatsGopher 1 }
+
+       proxyStatsGopherClientActiveRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of active Gopher clients at a given
+                  time."
+          ::= { proxyStatsGopher 2 }
+
+       proxyStatsGopherClientLocalReplies OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of replies generated locally 
+                  by Gopher client. These replies are generated when a request
+                  comes as an INDEX or CSO without a search word or a query."
+          ::= { proxyStatsGopher 3 }
+
+       proxyStatsGopherClientSourceReplies OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of Gopher replies processed by
+                  Gopher client (received from the source)."
+          ::= { proxyStatsGopher 4 }
+
+       proxyStatsGopherClientErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of errors returned by Gopher
+                  client."
+          ::= { proxyStatsGopher 5 }
+
+       proxyStatsGopherClientTranslateReplies OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of replies converted to HTML format
+                  by Gopher client."
+          ::= { proxyStatsGopher 6 }
+
+       --
+       -- FTP client statistics
+       --
+
+       proxyStatsFtpClientFillCacheRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of cache fill requests received by
+                  FTP client."
+          ::= { proxyStatsFTP 1 }
+
+       proxyStatsFtpClientActiveRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of active FTP clients at a given
+                  time."
+          ::= { proxyStatsFTP 2 }
+
+       proxyStatsFtpClientErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of errors returned by FTP client." 
+          ::= { proxyStatsFTP 3 }
+
+       proxyStatsFtpClientDirectoryRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of directory listing requests 
+                  received by FTP client."
+          ::= { proxyStatsFTP 4 }
+
+       proxyStatsFtpClientFileRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of file transfer requests received
+                  by FTP client."
+          ::= { proxyStatsFTP 5 }
+
+       --
+       -- ICP server/client statistics
+       --
+
+       proxyStatsIcpServerHits OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of ICP server hits at this proxy"
+          ::= { proxyStatsICP 1 }
+
+       proxyStatsIcpServerMisses OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of ICP server misses at this proxy"
+          ::= { proxyStatsICP 2 }
+
+       proxyStatsIcpServerErrors OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of ICP server errors at this proxy"
+          ::= { proxyStatsICP 3 }
+
+       proxyStatsIcpFillCacheRequests OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the total number of fill cache requests made
+		 by the proxy server"
+          ::= { proxyStatsICP 4 }
+
+       proxyStatsIcpClientQueries OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of ICP client queries made"
+          ::= { proxyStatsICP 5 }
+
+       proxyStatsIcpClientParentHits OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of Parent hits for the ICP queries"
+          ::= { proxyStatsICP 6 }
+
+       proxyStatsIcpClientSiblingHits OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of sibling hits for the ICP queries"
+          ::= { proxyStatsICP 7 }
+
+       proxyStatsIcpClientParentFetches OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of objects retrieved from a parent"
+          ::= { proxyStatsICP 8 }
+
+       proxyStatsIcpClientCernForwards OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of requests forwarded to CERN proxy"
+          ::= { proxyStatsICP 9 }
+
+       proxyStatsIcpClientOriginFetches OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of objects retrieved from origin"
+          ::= { proxyStatsICP 10 }
+
+       proxyStatsIcpClientFailOversToIcpProxy OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of failovers made among the sibling
+		 proxies"
+          ::= { proxyStatsICP 11 }
+
+       proxyStatsIcpClientFailOversToCernProxy OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of failovers made among the CERN
+		 proxies"
+          ::= { proxyStatsICP 12 }
+
+       proxyStatsIcpClientFailOversToOrigin OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This indicates the number of failovers made to origin source"
+          ::= { proxyStatsICP 13 }
+
+       --
+       -- Site Cache table entries
+       --
+
+       proxySiteCacheTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxySiteCacheEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxySiteCacheTable contains a list of cached popular
+                  sites by the Proxy Cache. This table is uniquely indexed
+                  by index."
+          ::= { proxySiteCache 1 }
+
+       proxySiteCacheEntry OBJECT-TYPE
+          SYNTAX ProxySiteCacheEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxySiteCacheTable."
+          INDEX  { proxySiteCacheSiteName }
+          ::= { proxySiteCacheTable 1 }
+
+       ProxySiteCacheEntry ::= SEQUENCE {
+            proxySiteCacheSiteName            DisplayString,
+            proxySiteCacheLookupCount         Counter,
+            proxySiteCacheBytesFromHost       OCTET STRING,
+            proxySiteCacheBytesFromCache      OCTET STRING,
+            proxySiteCacheBytesFromNeighbor   OCTET STRING,
+            proxySiteCacheAddrCount           INTEGER
+          }
+
+       proxySiteCacheSiteName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This is the site (host) name of the site cached. This acts
+                  as an index into the site table."
+          ::= { proxySiteCacheEntry 1 }
+
+       proxySiteCacheLookupCount OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of times the site has been 
+                  accessed by the users."
+          ::= { proxySiteCacheEntry 2 }
+
+       proxySiteCacheBytesFromHost OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data transfered
+                  from the original host."
+          ::= { proxySiteCacheEntry 3 }
+
+       proxySiteCacheBytesFromCache OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data transfered 
+                  from the cache server for this host."
+          ::= { proxySiteCacheEntry 4 }
+
+       proxySiteCacheBytesFromNeighbor OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data transfered 
+                  from the neighbors for this host."
+          ::= { proxySiteCacheEntry 5 }
+
+       proxySiteCacheAddrCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The number of IP addreses assigned to this site."
+          ::= { proxySiteCacheEntry 6 }
+
+       proxySiteCacheAddrTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxySiteCacheAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxySiteCacheAddrTable contains a list of IP addresses
+                  assigned to this site.
+
+                  Since SNMP does not support nested tables (e.g. a table of
+                  addresses under a Site Cache table), we need a separate table 
+                  where each entry is uniquely identified by the SiteCache id 
+                  and address id."
+          ::= { proxySiteCache 3 }
+
+       proxySiteCacheAddrEntry OBJECT-TYPE
+          SYNTAX ProxySiteCacheAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxySiteCacheAddrTable."
+          INDEX  { proxySiteCacheAddrSiteName,
+                   proxySiteCacheAddrAddrType, proxySiteCacheAddrAddr }
+          ::= { proxySiteCacheAddrTable 1 }
+
+       ProxySiteCacheAddrEntry ::= SEQUENCE {
+            proxySiteCacheAddrSiteName    DisplayString,
+            proxySiteCacheAddrAddrType    INTEGER,
+            proxySiteCacheAddrAddr        OCTET STRING
+          }
+
+       proxySiteCacheAddrSiteName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This acts as an index into the Site Cache table. This
+                  together with the IP addr will point to unique entry."
+          ::= { proxySiteCacheAddrEntry 1 }
+
+       proxySiteCacheAddrAddrType OBJECT-TYPE
+          SYNTAX INTEGER {
+                 ip (1),       -- IP address
+                 ip-v6 (2),    -- IP-V6 address
+                 ipx (3)       -- IPX address
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Unique value specifies the type of the address."
+          ::= { proxySiteCacheAddrEntry 2 }
+
+       proxySiteCacheAddrAddr OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (20))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Address of the cached site."
+          ::= { proxySiteCacheAddrEntry 3 }
+
+       --
+       -- DNS Cache table entries.
+       --
+
+       proxyDNSCacheEntryCount OBJECT-TYPE
+          SYNTAX Counter
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of DNS cache entries in the cache table."
+          ::= { proxyDNSCache 1 }
+
+       proxyDNSCacheTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxyDNSCacheEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxyDNSCacheTable contains a list of DNS cache entries.
+                  Each entry contains the name of the host, TTL and address
+                  information etc. The table is indexed by unique DNSCache id."
+          ::= { proxyDNSCache 2 }
+
+       proxyDNSCacheEntry OBJECT-TYPE
+          SYNTAX ProxyDNSCacheEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxyDNSCacheTable."
+          INDEX  { proxyDNSCacheHostName }
+          ::= { proxyDNSCacheTable 1 }
+
+       ProxyDNSCacheEntry ::= SEQUENCE {
+            proxyDNSCacheHostName           DisplayString,
+            proxyDNSCacheTtl                INTEGER,
+            proxyDNSCacheCreateTime         TimeTicks,
+            proxyDNSCacheStatus             INTEGER,
+            proxyDNSCacheAddrCount          INTEGER,
+            proxyDNSCacheLookupCount        INTEGER,
+            proxyDNSCacheBytesReceivedPhysicallyFromThisHost  OCTET STRING,
+            proxyDNSCacheBytesReceivedOriginatingAtThisHost   OCTET STRING,
+            proxyDNSCacheBytesTransmittedForThisHost          OCTET STRING
+          }
+
+       proxyDNSCacheHostName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The name (domain qualified) of the host which is resolved.
+                  A unique index into the DNS cache table."
+          ::= { proxyDNSCacheEntry 1 }
+
+       proxyDNSCacheTtl OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The Time-to-Live value of this entry. This TTL could be a
+                  positive TTL or negative depending on whether the entry is
+                  positively or negatively cached. This value specifies how
+                  long the entry is valid for caching after which it will be
+                  deleted."
+          ::= { proxyDNSCacheEntry 2 }
+
+       proxyDNSCacheStatus OBJECT-TYPE
+          SYNTAX INTEGER {
+                 positive-cached (1),
+                 negative-cached (2),
+                 pending (3),
+                 miss (4)
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the type of caching. If the name resolution
+                  yields a good IP address, it will be positively cached. If it
+                  can't be resolved, it will be negatively cached. If the name
+                  resolution request is given to DNS and awaiting a reply, the
+                  status is set to pending."
+          ::= { proxyDNSCacheEntry 3 }
+
+       proxyDNSCacheCreateTime OBJECT-TYPE
+          SYNTAX TimeTicks
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Time the entry has been created. The time is the number
+                  of seconds since midnight of January 1, 1970."
+          ::= { proxyDNSCacheEntry 4 }
+
+       proxyDNSCacheLookupCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Number of times this entry was accessed."
+          ::= { proxyDNSCacheEntry 5 }
+
+       proxyDNSCacheAddrCount OBJECT-TYPE
+          SYNTAX INTEGER
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The number of IP addreses assigned to this host."
+          ::= { proxyDNSCacheEntry 6 }
+
+       proxyDNSCacheBytesReceivedPhysicallyFromThisHost OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data received physically
+                  from this host."
+          ::= { proxyDNSCacheEntry 7 }
+
+       proxyDNSCacheBytesReceivedOriginatingAtThisHost OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data received for this 
+                  host."
+          ::= { proxyDNSCacheEntry 8 }
+
+       proxyDNSCacheBytesTransmittedForThisHost OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (8))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "This specifies the number of bytes of data transfered 
+                  from the cache for this host."
+          ::= { proxyDNSCacheEntry 9 }
+
+
+       proxyDNSCacheAddrTable OBJECT-TYPE
+          SYNTAX SEQUENCE OF ProxyDNSCacheAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "The proxyDNSCacheAddrTable contains a list of IP addresses
+                  assigned to this host.
+
+                  Since SNMP does not support nested tables (e.g. a table of
+                  addresses under a DNSCache table), we need a separate table 
+                  where each entry is uniquely identified by the DNSCache id 
+                  and address id."
+          ::= { proxyDNSCache 3 }
+
+       proxyDNSCacheAddrEntry OBJECT-TYPE
+          SYNTAX ProxyDNSCacheAddrEntry
+          ACCESS not-accessible
+          STATUS mandatory
+          DESCRIPTION
+                 "An entry in the proxyDNSCacheAddrTable."
+          INDEX  { proxyDNSCacheAddrHostName,
+                   proxyDNSCacheAddrAddrType, proxyDNSCacheAddrAddr }
+          ::= { proxyDNSCacheAddrTable 1 }
+
+       ProxyDNSCacheAddrEntry ::= SEQUENCE {
+            proxyDNSCacheAddrHostName        DisplayString,
+            proxyDNSCacheAddrAddrType        INTEGER,
+            proxyDNSCacheAddrAddr            OCTET STRING
+          }
+
+       proxyDNSCacheAddrHostName OBJECT-TYPE
+          SYNTAX DisplayString (SIZE(0..64))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "The name (domain qualified) of the host which is resolved.
+                  A unique index into the DNS cache table."
+          ::= { proxyDNSCacheAddrEntry 1 }
+
+       proxyDNSCacheAddrAddrType OBJECT-TYPE
+          SYNTAX INTEGER {
+                 ip (1),       -- IP address
+                 ip-v6 (2),    -- IP-V6 address
+                 ipx (3)       -- IPX address
+                 }
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Unique value specifies the type of the address."
+          ::= { proxyDNSCacheAddrEntry 2 }
+
+       proxyDNSCacheAddrAddr OBJECT-TYPE
+          SYNTAX OCTET STRING (SIZE (20))
+          ACCESS read-only
+          STATUS mandatory
+          DESCRIPTION
+                 "Address of the cached host."
+          ::= { proxyDNSCacheAddrEntry 3 }
+
+END
