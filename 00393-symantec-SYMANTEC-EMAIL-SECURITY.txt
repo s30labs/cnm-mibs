@@ -1,0 +1,229 @@
+SYMANTEC-EMAIL-SECURITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, 
+    OBJECT-TYPE, 
+    Gauge32,
+    enterprises, Integer32
+    	FROM SNMPv2-SMI
+    DisplayString
+    	FROM SNMPv2-TC;
+
+mailSecurityAppliance MODULE-IDENTITY
+	LAST-UPDATED	"200506200000Z"
+	ORGANIZATION	"Symantec Corporation"
+	CONTACT-INFO
+		"   Symantec Corporation
+		    20300 Stevens Creek Blvd.
+		    Cupertino, CA 95104
+		    US
+		    
+		    408-517-8000"
+	DESCRIPTION
+		"The MIB module to describe MTA instances running on
+		SMS appliances.."
+	REVISION	"200506200000Z"
+	DESCRIPTION
+		"Initial revision."
+	::= { sms 2 }
+
+symantec    OBJECT IDENTIFIER ::= { enterprises 393 }
+products    OBJECT IDENTIFIER ::= { symantec 200 }
+sms         OBJECT IDENTIFIER ::= { products 130 }
+
+hardware    OBJECT IDENTIFIER ::= { mailSecurityAppliance 1 }
+mta         OBJECT IDENTIFIER ::= { mailSecurityAppliance 2 }
+
+app8240     OBJECT IDENTIFIER ::= { hardware 1 }
+app8260     OBJECT IDENTIFIER ::= { hardware 2 }
+
+
+-- MTA related OIDs
+
+instanceTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF InstanceEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+        "A list of Instance Entries containing information about the
+        MTA instances running on the appliance."
+    ::= { mta 1 }
+
+instanceEntry OBJECT-TYPE
+    SYNTAX  InstanceEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+        "Describes a single MTA instance running on the appliance."
+    INDEX   { instanceIndex }
+    ::= { instanceTable 1 }
+
+InstanceEntry ::=
+    SEQUENCE {
+        instanceIndex		Integer32,
+        instanceDescr		DisplayString,
+        connections		    Gauge32,
+        dataRate		    Gauge32,
+        deferredMessages	Gauge32,
+        messageRate		    Gauge32,
+        queueSize		    Gauge32,
+        queuedMessages		Gauge32
+    }
+
+instanceIndex OBJECT-TYPE
+    SYNTAX  Integer32 (0..8)
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The instance index for this MTA instance"
+    ::= { instanceEntry 1 }
+
+instanceDescr  OBJECT-TYPE
+    SYNTAX  DisplayString (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The instance name for this instance of the MTA object."
+    ::= { instanceEntry 2 }
+
+connections     OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The number of connections for this MTA instance"
+    ::= { instanceEntry 3 }
+
+dataRate        OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The data rate for this MTA instance"
+    ::= { instanceEntry 4 }
+
+deferredMessages OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The number of deferred messages for this MTA instance"
+    ::= { instanceEntry 5 }
+
+messageRate OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The message rate for this MTA instance"
+    ::= { instanceEntry 6 }
+
+queueSize OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The queue size for this MTA instance"
+    ::= { instanceEntry 7 }
+
+queuedMessages OBJECT-TYPE
+    SYNTAX  Gauge32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "The number of queued messages for this MTA instance"
+    ::= { instanceEntry 8 }
+
+-- Hardware related OIDs
+
+powerSupplyRedundancy   OBJECT-TYPE
+    SYNTAX  INTEGER {
+            fullyRedundant(1),
+            redundancyLost(2),
+            redundancyUnknown(3)
+        }
+    MAX-ACCESS  read-only 
+    STATUS  current 
+    DESCRIPTION
+        "Redundancy status of the appliance power supplies."
+::= { app8260 1 }
+
+fanRedundancy   OBJECT-TYPE
+    SYNTAX  INTEGER {
+            fullyRedundant(1),
+            redundancyLost(2),
+            redundancyUnknown(3)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Redundancy status of the appliance fans."
+::= { app8260 2 }
+
+systemBlowerFan OBJECT-TYPE
+    SYNTAX  INTEGER {
+            Pass(1),
+            Fail(2),
+            Unknown(3),
+            Unavailable(4)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Pass/Fail status of the system blower fan"
+::= { app8240 1 }
+
+systemMemoryFan OBJECT-TYPE
+    SYNTAX  INTEGER {
+            Pass(1),
+            Fail(2),
+            Unknown(3),
+            Unavailable(4)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Pass/Fail status of the system memory fan"
+::= { app8240 2 }
+
+systemPciFan OBJECT-TYPE
+    SYNTAX  INTEGER {
+            Pass(1),
+            Fail(2),
+            Unknown(3),
+            Unavailable(4)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Pass/Fail status of the system PCI fan"
+::= { app8240 3 }
+
+internalAmbientTemperature OBJECT-TYPE
+    SYNTAX  INTEGER {
+            Pass(1),
+            Fail(2),
+            Unknown(3),
+            Unavailable(4)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Pass/Fail status of the internal ambient temperature"
+::= { app8240 4 }
+
+CpuInternalTemperature OBJECT-TYPE
+    SYNTAX  INTEGER {
+            Pass(1),
+            Fail(2),
+            Unknown(3),
+            Unavailable(4)
+        }
+    MAX-ACCESS  read-only
+    STATUS  current 
+    DESCRIPTION
+        "Pass/Fail status of the CPU internal temperature"
+::= { app8240 5 }
+
+END
+
