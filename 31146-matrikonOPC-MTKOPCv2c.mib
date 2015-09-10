@@ -1,0 +1,720 @@
+-- **************************************************************************
+-- MatrikonOPC Copyright(c) 2008
+-- 
+--	 	This Management Information Base file describes the format of 
+--		the data exposed by this agent. It was written for SNMPv2 
+--		compatible Management Systems.
+--
+-- Revision History: Original Version
+--		     Jan 13, 2009: Added supplemental documentation
+-- **************************************************************************
+
+SNMPOPCAGENT DEFINITIONS ::= BEGIN
+
+IMPORTS
+		MODULE-IDENTITY,
+		NOTIFICATION-TYPE,
+		OBJECT-TYPE,
+		Unsigned32,
+		Integer32,
+		enterprises FROM SNMPv2-SMI	
+		DisplayString FROM SNMPv2-TC
+		;
+		
+snmpOPCModule MODULE-IDENTITY
+        LAST-UPDATED
+            "200901300000Z" -- January 01, 2009 8:30
+        ORGANIZATION
+            "MatrikonOPC"
+        CONTACT-INFO
+            "www.matrikonOPC.com"
+        DESCRIPTION
+            "The MIB module for SNMP Version 2c compatible Network Managers for the MatrikonOPC SNMP Agent for OPC"
+    ::= { modules 2 }
+
+
+-- **************************************************************************
+--
+-- Object Identifiers
+--
+-- This section defines constant valued indices.  These indices are used as
+-- part Object identifiers for the data exposed by this agent.
+--
+-- **************************************************************************
+matrikonOPC	        OBJECT IDENTIFIER ::= { enterprises 31146 }
+products                OBJECT IDENTIFIER ::= { matrikonOPC 1 }
+modules			OBJECT IDENTIFIER ::= { matrikonOPC 2 }
+snmpOPCClient           OBJECT IDENTIFIER ::= { products 2 }
+sOPCTraps		OBJECT IDENTIFIER ::= { snmpOPCClient 0 }
+sOPCGeneral             OBJECT IDENTIFIER ::= { snmpOPCClient 1 }
+sOPCDatapoints          OBJECT IDENTIFIER ::= { snmpOPCClient 2 }
+sOPCDiagnostics         OBJECT IDENTIFIER ::= { snmpOPCClient 3 }
+sOPCGoodPoints		OBJECT IDENTIFIER ::= { sOPCDatapoints 1 }
+sOPCAlarmState          OBJECT IDENTIFIER ::= { sOPCDiagnostics 4 }
+sOPCHeartbeat   	OBJECT IDENTIFIER ::= { sOPCDiagnostics 5 }
+
+
+-- **************************************************************************
+--
+-- General Information
+--
+--	General information about the SNMP Agent for OPC.
+-- **************************************************************************
+
+sOPCName OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION 
+		"The name of the agent as seen by a Network Management System."
+      ::= { sOPCGeneral 1 }
+
+sOPCDescription OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "A description for Network Management Systems of the object and what it does."
+      ::= { sOPCGeneral 2 }
+
+sOPCLocation OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The physical location of the location of the machine that runs this agent."
+      ::= { sOPCGeneral 3 }
+
+sOPCContact OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The name of an individual or department responsible for maintaining this agent."
+      ::= { sOPCGeneral 4 }
+      
+sOPCVersion OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The version number of the MatrikonOPC SNMP Agent for OPC."
+      ::= { sOPCGeneral 5 }
+
+sOPCVersionInfo OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The version info of MatrikonOPC SNMP Agent for OPC."
+      ::= { sOPCGeneral 6 }
+      
+sOPCAgentOID OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The unique product identifier for this agent"
+      ::= { sOPCGeneral 7 }
+
+sOPCProductName OBJECT-TYPE
+      SYNTAX  DisplayString
+      MAX-ACCESS  read-only
+      STATUS  current
+      DESCRIPTION
+        "The product name, MatrikonOPC SNMP Agent for OPC"
+      ::= { sOPCGeneral 8 }
+
+-- ************************************************************************************************
+-- OPC ITEM MAPPING
+--
+--	This section defines all the data structures used to implement the OPC Item Mapping.  The
+--	OPC Item mapping is the basic concept used to map OPC items to SNMP.  OPC item information 
+--	is obtained from the OPC server and the attributes of these items is exposed to Network 
+--	Management Systems using the following SNMP data structures and Object Identifiers.
+-- ************************************************************************************************
+
+
+-- This is the number of OPC points that are mapped to OPC Item Mappings.  This number also repesents the
+-- number of Points in the GoodPointTable
+sOPCGoodPointCount OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The number of OPC points that are mapped to this SNMP Agent"	
+    ::= { sOPCGoodPoints 1 }   
+
+-- The table of OPC Item Mappings.  This table is where Network Management Systems actually
+-- access OPC data.
+sOPCGoodPointTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF GoodPointTableEntry 
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+       "The OPC data points monitored by this Agent."	
+    ::= { sOPCGoodPoints 2 }   
+
+sOPCGoodMessage OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "Used to store the most recent alert generated from points in the GoodPointTableEntry"	
+    ::= { sOPCGoodPoints 3 }   
+
+-- ********************************************************************************************
+-- sOPCGoodPointTableEntry
+--	This table entry is used to store the attributes of an OPC Item.  It is the core of the
+--	OPC Item Mapping entity used in this agent.
+-- ********************************************************************************************
+sOPCGoodPointTableEntry OBJECT-TYPE
+    SYNTAX  GoodPointTableEntry 
+    MAX-ACCESS  not-accessible 
+    STATUS  current 
+    DESCRIPTION
+        "A structure used to store the attributes of the point mapped from OPC" 
+    INDEX { sOPCGoodIndex }
+    ::= { sOPCGoodPointTable 1 }
+        
+GoodPointTableEntry ::= SEQUENCE {
+      sOPCGoodSeverity
+            Integer32 ,
+      sOPCGoodIndex
+            Integer32 , 
+      sOPCGoodName
+            DisplayString,
+      sOPCGoodHostName
+      	    DisplayString,
+      sOPCGoodServerName
+            DisplayString,
+      sOPCGoodItemPath
+            DisplayString,
+      sOPCGoodDescription
+            DisplayString,
+      sOPCGoodValue
+            DisplayString,
+      sOPCGoodQuality
+            Integer32 ,
+      sOPCGoodIntValue
+            Integer32,
+      sOPCGoodOPCUpdateRate
+            Integer32 ,
+      sOPCGoodTimestamp
+            DisplayString      
+} 
+
+sOPCGoodSeverity OBJECT-TYPE
+    SYNTAX  Integer32 
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The SNMP severity associated with this OPC Item Mapping."
+    ::= { sOPCGoodPointTableEntry 1 }
+
+sOPCGoodIndex OBJECT-TYPE
+    SYNTAX  Integer32 
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+	   "The index that specifies the row of the OPC Item Mapping."
+    ::= { sOPCGoodPointTableEntry 2 }
+
+sOPCGoodName OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The name associated with the OPC Item mapping."
+    ::= { sOPCGoodPointTableEntry 3 }
+
+-- ************************
+-- OPC Server Host Machine
+-- ************************
+sOPCGoodHostName OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The host name where the OPC item resides."
+    ::= { sOPCGoodPointTableEntry 4 }
+
+-- ***********
+-- OPC Server
+-- ***********
+sOPCGoodServerName OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The server name where the OPC item resides."
+    ::= { sOPCGoodPointTableEntry 5 }
+
+-- **************
+-- OPC Item Path
+-- **************
+sOPCGoodItemPath OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The item path that describes the location of the OPC item within the server."
+    ::= { sOPCGoodPointTableEntry 6 }
+
+sOPCGoodDescription OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "A text description of what this OPC Item Mapping represents."
+    ::= { sOPCGoodPointTableEntry 7 }
+
+-- ******************
+-- OPC Item Value
+-- ******************
+sOPCGoodValue OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-write
+    STATUS  current
+    DESCRIPTION
+       "The current value of the OPC data point."
+    ::= { sOPCGoodPointTableEntry 8 }
+
+-- ******************
+-- OPC Item Quality
+-- ******************
+sOPCGoodQuality OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The quality of the OPC item as obtained from the OPC server."
+    ::= { sOPCGoodPointTableEntry 9 }
+
+sOPCGoodIntValue OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The current value of the data point as an Integer to help with compatibility of older NMS."              
+    ::= { sOPCGoodPointTableEntry 10 }
+
+-- ****************    
+-- OPC Update Rate
+-- ****************
+sOPCGoodOPCUpdateRate OBJECT-TYPE
+    SYNTAX  Integer32 
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The update rate of the OPC item."              
+    ::= { sOPCGoodPointTableEntry 11 }   
+
+sOPCGoodTimestamp OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The timestamp of the OPC item.  This quantity is obtained from the OPC server."
+    ::= { sOPCGoodPointTableEntry 12 }
+
+
+-- *******************************************************************************
+-- SNMP Alarms
+--
+--	This section defines the structures used when generating SNMP Alarms.  
+--	These structures store information about OPC Item Mapping which are in 
+--	alarm state, allowing Network Management Systems to query for more detailed
+--	information when a trap occurs.
+-- *******************************************************************************
+
+-- *************************************************************************************
+-- The number of points currently in an alarm state. This will correspond to the number
+--  of points in the alarm table.
+-- *************************************************************************************
+sOPCAlarmPointCount OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The number of OPC points thresholds in alarm."	
+    ::= { sOPCAlarmState 1 }   
+
+-- ***************************************************
+-- This is the structure used to represent an alarm.  
+-- ***************************************************
+sOPCAlarmPointTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF AlarmPointEntry
+    MAX-ACCESS  not-accessible
+    STATUS  current
+    DESCRIPTION
+       "A list of OPC points which are current in an alarmed state."	
+    ::= { sOPCAlarmState 2 }   
+
+sOPCAlarmPointTableEntry OBJECT-TYPE
+    SYNTAX  AlarmPointEntry 
+    MAX-ACCESS  not-accessible 
+    STATUS  current 
+    DESCRIPTION
+        "This entry represents an OPC item that is in an alarmed state" 
+    INDEX { sOPCAlarmIndex }
+    ::= { sOPCAlarmPointTable 1 }
+
+AlarmPointEntry ::= SEQUENCE {
+      sOPCAlarmSeverity
+            Integer32,
+      sOPCAlarmIndex
+            Integer32, 
+      sOPCAlarmName
+            DisplayString,
+      sOPCAlarmMessage
+            DisplayString,      
+      sOPCAlarmCurrentState
+            DisplayString,
+      sOPCAlarmThresholdValue
+	    DisplayString,
+      sOPCAlarmValue
+            DisplayString,
+      sOPCAlarmQuality
+            Integer32,
+      sOPCAlarmTimestamp
+            DisplayString
+} 
+
+sOPCAlarmSeverity OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The severity of a OPC data point in alarm."
+    ::= { sOPCAlarmPointTableEntry 1 }
+
+sOPCAlarmIndex OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+	   "An index that identifies an OPC data point in the alarm table."
+    ::= { sOPCAlarmPointTableEntry 2 }
+
+sOPCAlarmName OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The name of the OPC data point in alarm."
+    ::= { sOPCAlarmPointTableEntry 3 }
+
+sOPCAlarmMessage OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The alarm message associated with the particular data point and the threshold that was crossed."
+    ::= { sOPCAlarmPointTableEntry 4 }
+
+sOPCAlarmCurrentState OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION	
+       "The current alarm state of the data point."
+    ::= { sOPCAlarmPointTableEntry 5 }
+
+sOPCAlarmThresholdValue OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The threshold value that was crossed for the data point to enter this state."
+    ::= { sOPCAlarmPointTableEntry 6 }
+    
+sOPCAlarmValue OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The value of the OPC data point in alarm."
+    ::= { sOPCAlarmPointTableEntry 7 }
+
+sOPCAlarmQuality OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The  quality of the OPC data point in alarm. This is always determined by the OPC Server."
+    ::= { sOPCAlarmPointTableEntry 8 }
+
+sOPCAlarmTimestamp OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The OPC timestamp of the datapoint when it entered this state."
+    ::= { sOPCAlarmPointTableEntry 9 }
+
+
+
+-------------------------------------------------------------------------------
+--
+-- Diagnostic Information
+--
+-------------------------------------------------------------------------------
+
+sOPCLastError OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+        "This is a textual description of the last error that has occurred with the OPC connections."
+    ::= { sOPCDiagnostics 1 }
+    
+sOPCStatus OBJECT-TYPE
+    SYNTAX Integer32 {
+     	sOPCStatusOk(0),
+     	sOPCStatusInit(1),
+    	sOPCStatusCriticial(2), 
+     	sOPCStatusFailure(3) 
+    }
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+   	"The current status of the operation of the agent in the SNMP network."
+    ::= { sOPCDiagnostics 2 }
+
+sOPCStatusText OBJECT-TYPE
+    SYNTAX  DisplayString
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+    	"The current status of the operation of the agent in the SNMP network represented as a string."
+    ::= { sOPCDiagnostics 3 }
+
+
+-- **************************************************************************
+-- Heartbeat Alarms
+--
+--	These structures define the parameters for heart beat alarms.
+-- **************************************************************************
+
+sOPCHeartbeatOn OBJECT-TYPE
+    SYNTAX  Integer32 {
+       sOPCOn(1), -- agent is sending heartbeats.
+       sOPCOff(0) -- agent does not send heartbeats.
+    }
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "This value will be set to 1 if heartbeat traps are enabled."
+    ::= { sOPCHeartbeat 1 }
+
+sOPCHeartbeatRate OBJECT-TYPE
+    SYNTAX  Integer32
+    MAX-ACCESS  read-only
+    STATUS  current
+    DESCRIPTION
+       "The rate at which heartbeat traps are sent to Network Management Systems."
+    ::= { sOPCHeartbeat 2 }
+    
+-- *************************************************************
+-- Alarms
+--
+--	This section defines the structures this agent uses for 
+--	alarms.  This includes the structures used to send traps
+--	to Network Management Systems
+-- *************************************************************
+sOPCHeartbeatAlarm NOTIFICATION-TYPE
+    OBJECTS {
+	sOPCStatus,
+	sOPCStatusText
+    }
+    STATUS current
+    DESCRIPTION
+      "This trap, if enabled, is sent at a set rate to all Trap Destinations to be used to determine Agent Communication Status"
+    ::= {sOPCTraps 1 }
+
+
+-- ***************
+-- Low Alarm
+-- ***************
+sOPCLowAlarm NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the value of an data point is below a the Initial Low Threshold value."
+    ::= { sOPCTraps 2 }
+
+-- ***************
+-- Low-Low Alarm
+-- ***************
+sOPCLowLowAlarm NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the value of an data point is below a the Critical Low Threshold value."
+    ::= { sOPCTraps 3 }
+
+-- ***************
+-- High Alarm
+-- ***************
+sOPCHighAlarm NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the value of a data point is above the Initial High Threshold value."
+    ::= { sOPCTraps 4 }
+
+-- ***************
+-- High-High Alarm
+-- ***************
+sOPCHighHighAlarm NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the value of a data point is above the Critical High Threshold value."
+    ::= { sOPCTraps 5 }
+
+-- ***************
+-- Digital Alarm
+-- ***************
+sOPCDigitalAlarm NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the digital value meets the configured Digital Alarm criteria."
+    ::= { sOPCTraps 6 }
+
+-- ***************
+-- Return to Alarm
+-- ***************
+sOPCReturnToNormal NOTIFICATION-TYPE
+    OBJECTS { 
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the data point that was previously in alarm state has return to normal threshold conditions."
+    ::= { sOPCTraps 7 }
+
+-- ***************
+-- Quality Alarm
+-- ***************
+sOPCQuality NOTIFICATION-TYPE
+    OBJECTS {
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the data point has an OPC Quality that matches the configured threshold quality."
+    ::= { sOPCTraps 8 }
+
+-- **************************
+-- Server Disconnected Alarm
+-- **************************
+sOPCServerDisconnection NOTIFICATION-TYPE
+    OBJECTS {
+      sOPCGoodMessage,
+      sOPCGoodSeverity,
+      sOPCGoodIndex,
+      sOPCGoodName,
+      sOPCGoodHostName,
+      sOPCGoodServerName,
+      sOPCGoodItemPath,
+      sOPCGoodDescription,
+      sOPCGoodValue,
+      sOPCGoodQuality,
+      sOPCGoodIntValue,
+      sOPCGoodTimestamp
+    }
+    STATUS current
+    DESCRIPTION
+      "Sent if the SNMP Agent for OPC is no longer connected to the OPC Server."
+    ::= { sOPCTraps 9 }    
+END
