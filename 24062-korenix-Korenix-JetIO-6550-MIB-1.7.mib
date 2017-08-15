@@ -1,0 +1,429 @@
+-- *****************************************************************
+-- Korenix Technology Co., Ltd.
+-- eio MIB
+-- Version Number: v1.7, Aug.21, 2009 
+-- Desc: Korenix JetI/O 6550 Private MIB 
+-- 
+-- Profile:
+-- All rights reserved.
+-- *****************************************************************
+
+   Korenix-JetIO-6550-MIB DEFINITIONS ::= BEGIN
+
+   IMPORTS
+      Gauge                                       
+         FROM RFC1155-SMI
+      TRAP-TYPE
+         FROM RFC-1215                                                                            
+      MODULE-IDENTITY, OBJECT-TYPE, Integer32, Counter32, Counter64,
+      IpAddress, NOTIFICATION-TYPE, enterprises
+         FROM SNMPv2-SMI
+      DisplayString, TEXTUAL-CONVENTION                                            
+         FROM SNMPv2-TC 
+      sysLocation                                                   
+         FROM SNMPv2-MIB;                                    
+
+   korenix   MODULE-IDENTITY
+      LAST-UPDATED "0804230000Z"
+      ORGANIZATION "Korenix Technology Co., Ltd."
+      CONTACT-INFO
+         "Korenix Technology Co., Ltd.
+          F2, No. 188, Pao-Chiao Rd.
+          Shing Tien City, Taipei 23141, Taiwan
+          Phone: +886-2-89111000
+          Fax:   +886-2-89123328
+          Web:    http://www.korenix.com
+          E-Mail:sales@Korenix.com"
+      DESCRIPTION
+         "Korenix Technology, Ltd. root MIB module."
+      ::= { enterprises 24062 }
+
+   jetIO-Mgt OBJECT IDENTIFIER ::= { korenix 7 }
+         
+   TruthValue ::= TEXTUAL-CONVENTION
+      STATUS       current
+      DESCRIPTION
+         "Represents a boolean value."
+      SYNTAX       INTEGER { no(0), yes(1) }
+
+   PositiveInteger ::= TEXTUAL-CONVENTION
+      DISPLAY-HINT "d"
+      STATUS       current
+      DESCRIPTION
+         "This data type is a non-zero and non-negative value."
+      SYNTAX       INTEGER (1..2147483647)
+
+   jetIO-6500          OBJECT IDENTIFIER ::= { jetIO-Mgt 1 }
+   jetIO-655x          OBJECT IDENTIFIER ::= { jetIO-6500 5 } 
+   jetIO-6550          OBJECT IDENTIFIER ::= { jetIO-655x 1 }
+
+
+ 
+-- ***********************************************
+
+-- System Inforamtion 
+-- ***********************************************
+-- The eio Identification group.   
+      
+-- The Network Management.   
+-- ***********************************************
+-- eioObjStatus
+-- ***********************************************
+   diStatus  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Digital Input channels. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the DI OFF, 1 represent DI ON mode. The last
+         bit represent the first channel(Ch0).
+         For example: Ch0-3 is DI OFF, Ch4-13 is DI ON, Ch14-15 remains 00,
+         the value you can get is 00111111 11110000(3FF0 in 16xHex)."
+      ::= { jetIO-6550 1 }
+
+   diMode  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the mode of the Digital Input channels. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the DI mode, 1 represent Event Counter mode. The last
+         bit represent the first channel(Ch0).
+         For example: Ch0-3 is DI, Ch4-13 is Event Counter mode, Ch14-15 remains 00, 
+         the value you can get/set is 00111111 11110000(3FF0 in 16xHex, 16368 in 10xHex).
+         Type 16368 to set the value."
+      ::= { jetIO-6550 2 }
+
+   diCounterStatus  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Event Counter channel. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the Event Counter OFF/Stop, 1 represent Event Counter ON/Start. 
+         The last bit represent the first channel(Ch0).
+         For example: Ch0-3 is OFF, Ch4-5 is Start, Ch6-13 is Stop, Ch14-15 remains 00, 
+         the value you can get/set is 00000000 00110000(0030 in 16xHex, 48 in 10xHex)
+         Type 48 to set the value."
+      ::= { jetIO-6550 3 }
+
+   diCounterOverflowStatus  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Event Counter overflow.
+         The binary number 0 represents not overflow, 1 represents overfolw. 
+         The last bit represent the first channel(Ch0). 
+         The first 2 bits(Ch14-15) remain 00."
+      ::= { jetIO-6550 4 }
+
+   diCounterTriggerMode  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Event Counter Trigger mode.
+         The binary number 0 represent the Low to High mode, 1 represent the
+         High to Low mode. The last bit represent the first channel(Ch0).
+         The first 2 bits(Ch14-15) remain 00."
+      ::= { jetIO-6550 5 } 
+      
+   diClrCounterValue  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the Event Counter Reset mode. Use Binary 
+         display mode to read the value. The binary number 0 represents 
+         not reset mode, 1 represents reset mode. The last bit represent 
+         the first channel(Ch0). The first 2 bits(Ch14-15) remain 00."
+      ::= { jetIO-6550 6 }
+    
+   doStatus  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Digital Output channels. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the DO OFF, 1 represent the DO ON. The last bit represent 
+         the first channel(Ch0). The first 2 bits(Ch14-15) remain 00."
+      ::= { jetIO-6550 7 }
+
+   doPulseOperateStatus  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the Pulse Output channels. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the Pulse Output OFF, 1 represent the Pulse Output ON.
+         The last bit represent the first channel(Ch0). The first 2 bits(Ch14-15) remain 00."
+      ::= { jetIO-6550 8 }
+
+
+   do00PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 9 }   
+      
+   do00PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 10 } 
+      
+   do01PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 11 }   
+      
+   do01PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 12 } 
+      
+   do02PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 13 }   
+      
+   do02PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 14 }   
+      
+   do03PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 15 }   
+      
+   do03PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 16 } 
+      
+   do04PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 17 }   
+      
+   do04PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 18 }  
+      
+   do05PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 19 }   
+      
+   do05PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 20 }    
+      
+   do06PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 21 }   
+      
+   do06PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 22 }  
+      
+   do07PulseLowWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "Low value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 23 }   
+      
+   do07PulseHiWidth  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "High value of the Pulse mode parameter. The unit of the value is millisecond."
+      ::= { jetIO-6550 24 }   
+      
+   doMode  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-write
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the mode of the Digital Output channels. 
+         Use Binary display mode to read the value. The binary number 0 
+         represent the DO mode, 1 represent the Pulse Output mode.The last
+         bit represent the first channel(Ch0). 
+         For example: Ch0-3 is DO, Ch4-13 are Pulse Output mode, Ch14-15 remain 00, 
+         the value you can get/set is 00111111 11110000(3FF0 in 16xHex)" 
+      ::= { jetIO-6550 25 }  
+                                                                          
+   ruleEnable  OBJECT-TYPE
+      SYNTAX     INTEGER ( 0..65535 )
+      MAX-ACCESS read-only
+      STATUS     current
+      DESCRIPTION
+         "This object shows you the status of the rule(disable/enable).  
+         Use Binary display status to read the value. The binary number 0 
+         represent disable rule, 1 represent enable rule. 
+         For example: x0000101 represent rule 0,2 enable. the others rule is disable." 
+      ::= { jetIO-6550 26 }        
+                                                                        
+--************************************************
+--  specific trap (6)
+--  if...then logic trap definitions
+-- 
+-- ************************************************
+    rule0-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 0 is actived."
+	  ::= 1 
+	  
+	rule1-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 1 is actived."
+	  ::= 2 
+	  
+	rule2-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 2 is actived."
+
+	  ::= 3 
+	  
+	rule3-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 3 is actived."
+	  ::= 4
+	  
+	rule4-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 4 is actived."
+	  ::= 5 
+	  
+	rule5-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 5 is actived."
+
+	  ::= 6
+	  
+	rule6-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 6 is actived."
+	  ::= 7 
+
+    rule7-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 7 is actived."
+	  ::= 8 
+	  
+	rule1-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 8 is actived."
+	  ::= 9 
+	  
+	rule10-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 10 is actived."
+
+	  ::= 11 
+	  
+	rule12-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 12 is actived."
+	  ::= 13
+	  
+	rule13-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 13 is actived."
+	  ::= 14 
+	  
+	rule14-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 14 is actived."
+
+	  ::= 15
+	  
+	rule15-Action TRAP-TYPE
+      ENTERPRISE	jetIO-6550
+      VARIABLES		{ ruleEnable }
+	  DESCRIPTION
+         	"This trap is send if the rule 15 is actived."
+	  ::= 16 
+	  
+    	
+END     
