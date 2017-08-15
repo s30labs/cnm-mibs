@@ -1664,4 +1664,3 @@ dupsTraps			OBJECT IDENTIFIER ::=  { upsv4 20 }
 	"INFORMATION: The UPS recovered from battery replacement."
        ::= 53
 END
-

@@ -105,6 +105,13 @@ cnmNotifMCNMBackupFailure NOTIFICATION-TYPE
     ::= { cnmNotifBase 103 }
 
 -- --------------------------------------------------------
+cnmNotifNTPSyncFailure NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
+    DESCRIPTION
+            "Este trap se genera cuando se ha producido un fallo en la sincronizacion del protocolo NTP"
+    ::= { cnmNotifBase 104 }
+
+-- --------------------------------------------------------
 cnmNotifMCNMNoAccessToRemote NOTIFICATION-TYPE
     VARIABLES   { cnmNotifCode, cnmNotifMsg, cnmNotifKey }
     DESCRIPTION

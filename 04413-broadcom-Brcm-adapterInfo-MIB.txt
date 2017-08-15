@@ -175,7 +175,7 @@ InetAddressIPv6 ::= TEXTUAL-CONVENTION
               SEQUENCE {
 			      ifBIndex
 					  INTEGER,
-                  ifName
+                  ifBName
                       DisplayString,
 				  ifBDescr
 				      DisplayString,
@@ -223,7 +223,7 @@ InetAddressIPv6 ::= TEXTUAL-CONVENTION
                       initialization."
               ::= { ifBEntry 1 }
 
-          ifName  OBJECT-TYPE
+          ifBName  OBJECT-TYPE
               SYNTAX  DisplayString
               ACCESS  read-only
               STATUS  mandatory
