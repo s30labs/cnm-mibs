@@ -1,113 +1,139 @@
-UPS-MIB DEFINITIONS ::= BEGIN
+   UPS-MIB DEFINITIONS ::= BEGIN
 
-IMPORTS
---      AutonomousType
---              FROM RFC1316-MIB
-        TRAP-TYPE
-                FROM RFC-1215
-        DisplayString
-                FROM RFC1213-MIB
-        OBJECT-TYPE
-                FROM RFC-1212
-        Gauge, Counter, TimeTicks, mgmt
-                FROM RFC1155-SMI
---      TestAndIncr, TimeInterval, TimeStamp
---              FROM SNMPv2-TC
-            ;
+   IMPORTS
+       MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+       OBJECT-IDENTITY, Counter32, Gauge32, Integer32
+           FROM SNMPv2-SMI
+       DisplayString, TimeStamp, TimeInterval, TestAndIncr,
+         AutonomousType
+           FROM SNMPv2-TC
+       MODULE-COMPLIANCE, OBJECT-GROUP
+           FROM SNMPv2-CONF;
 
-PositiveInteger ::=
-    INTEGER
+   org         OBJECT IDENTIFIER ::= { iso 3 }  --  "iso" = 1
+   dod         OBJECT IDENTIFIER ::= { org 6 }
+   internet    OBJECT IDENTIFIER ::= { dod 1 }
+   mgmt        OBJECT IDENTIFIER ::= { internet 2 }
+   mib-2       OBJECT IDENTIFIER ::= { mgmt 1 }
+       
+   upsMIB MODULE-IDENTITY
+       LAST-UPDATED "9402230000Z"
+       ORGANIZATION "IETF UPS MIB Working Group"
+       CONTACT-INFO
+              "        Jeffrey D. Case
 
-NonNegativeInteger ::=
-    INTEGER
+                Postal: SNMP Research, Incorporated
+                        3001 Kimberlin Heights Road
+                        Knoxville, TN  37920
+                        US
 
-TimeStamp ::=
-    TimeTicks
+                   Tel: +1 615 573 1434
+                   Fax: +1 615 573 9197
 
-TimeInterval ::=
-    INTEGER (0..2147483647)
+                E-mail: case@snmp.com"
+       DESCRIPTION
+               "The MIB module to describe Uninterruptible Power
+               Supplies. This version is extended for DIOAD."
+       ::= { mib-2 33 }
 
-TestAndIncr ::=
-    INTEGER (0..2147483647)
+   PositiveInteger ::= TEXTUAL-CONVENTION
+       DISPLAY-HINT "d"
+       STATUS       current
+       DESCRIPTION
+               "This data type is a non-zero and non-negative value."
+       SYNTAX       INTEGER (1..2147483647)
 
-AutonomousType ::=
-    DisplayString
+   NonNegativeInteger ::= TEXTUAL-CONVENTION
+       DISPLAY-HINT "d"
+       STATUS       current
+       DESCRIPTION
+               "This data type is a non-negative value."
+       SYNTAX       INTEGER (0..2147483647)
 
-mib-2      OBJECT IDENTIFIER ::= { mgmt    1 }
-upsMIB     OBJECT IDENTIFIER ::= { mib-2  33 }
-upsObjects OBJECT IDENTIFIER ::= { upsMIB  1 }
+   upsObjects            OBJECT IDENTIFIER ::= { upsMIB 1 }
 
+   --
+   -- The Device Identification group.
+   --      All objects in this group except for upsIdentName and
+   --      upsIdentAttachedDevices are set at device initialization
+   --      and remain static.
+   --
 
-upsIdent OBJECT IDENTIFIER ::= { upsObjects  1 }
+   upsIdent              OBJECT IDENTIFIER ::= { upsObjects 1 }
 
-upsIdentManufacturer OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The name of the UPS manufacturer."
-    ::= { upsIdent  1 }
+   upsIdentManufacturer OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..31))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The name of the UPS manufacturer."
+       ::= { upsIdent 1 }
 
-upsIdentModel OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The UPS Model designation."
-    ::= { upsIdent  2 }
+   upsIdentModel OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The UPS Model designation."
+       ::= { upsIdent 2 }
 
-upsIdentUPSSoftwareVersion OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The UPS firmware/software version(s).  This variable
+   upsIdentUPSSoftwareVersion OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The UPS firmware/software version(s).  This variable
                may or may not have the same value as
                upsIdentAgentSoftwareVersion in some implementations."
-    ::= { upsIdent  3 }
+       ::= { upsIdent 3 }
 
-upsIdentAgentSoftwareVersion OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The UPS agent software version.  This variable may or
+   upsIdentAgentSoftwareVersion OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The UPS agent software version.  This variable may or
                may not have the same value as
                upsIdentUPSSoftwareVersion in some implementations."
-    ::= { upsIdent  4 }
+       ::= { upsIdent 4 }
 
-upsIdentName OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "A string identifying the UPS.  This object should be
+   upsIdentName OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "A string identifying the UPS.  This object should be
                set by the administrator."
-    ::= { upsIdent  5 }
+       ::= { upsIdent 5 }
 
-upsIdentAttachedDevices OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "A string identifying the devices attached to the
+   upsIdentAttachedDevices OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "A string identifying the devices attached to the
                output(s) of the UPS.  This object should be set by
                the administrator."
-    ::= { upsIdent  6 }
+       ::= { upsIdent 6 }
 
-upsBattery OBJECT IDENTIFIER ::= { upsObjects  2 }
 
-upsBatteryStatus OBJECT-TYPE
-    SYNTAX  INTEGER {
-    unknown(1),
-    batteryNormal(2),
-    batteryLow(3),
-    batteryDepleted(4)
-}
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The indication of the capacity remaining in the UPS
+   --
+   -- Battery Group
+   --
+
+   upsBattery            OBJECT IDENTIFIER ::= { upsObjects 2 }
+
+   upsBatteryStatus OBJECT-TYPE
+       SYNTAX     INTEGER {
+           unknown(1),
+           batteryNormal(2),
+           batteryLow(3),
+           batteryDepleted(4)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The indication of the capacity remaining in the UPS
                system's batteries.   A value of batteryNormal
                indicates that the remaining run-time is greater than
                upsConfigLowBattTime.  A value of batteryLow indicates
@@ -118,362 +144,399 @@ upsBatteryStatus OBJECT-TYPE
                power is lost (including the possibility that the
                utility power is currently absent and the UPS is
                unable to sustain the output)."
-    ::= { upsBattery  1 }
+       ::= { upsBattery 1 }
 
-upsSecondsOnBattery OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS seconds
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "If the unit is on battery power, the elapsed time
+   upsSecondsOnBattery OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "seconds"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "If the unit is on battery power, the elapsed time
                since the UPS last switched to battery power, or the
                time since the network management subsystem was last
                restarted, whichever is less.  Zero shall be returned
                if the unit is not on battery power."
-    ::= { upsBattery  2 }
+       ::= { upsBattery 2 }
 
-upsEstimatedMinutesRemaining OBJECT-TYPE
-    SYNTAX  PositiveInteger     -- UNITS minutes
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "An estimate of the time to battery charge depletion
+   upsEstimatedMinutesRemaining OBJECT-TYPE
+       SYNTAX     PositiveInteger
+       UNITS      "minutes"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "An estimate of the time to battery charge depletion
                under the present load conditions if the utility power
                is off and remains off, or if it were to be lost and
                remain off."
-    ::= { upsBattery  3 }
+       ::= { upsBattery 3 }
 
-upsEstimatedChargeRemaining OBJECT-TYPE
-    SYNTAX  INTEGER     -- UNITS percent
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "An estimate of the battery charge remaining expressed
+   upsEstimatedChargeRemaining OBJECT-TYPE
+       SYNTAX     INTEGER (0..100)
+       UNITS      "percent"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "An estimate of the battery charge remaining expressed
                as a percent of full charge."
-    ::= { upsBattery  4 }
+       ::= { upsBattery 4 }
 
-upsBatteryVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Volt DC
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the present battery voltage."
-    ::= { upsBattery  5 }
+   upsBatteryVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Volt DC"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the present battery voltage."
+       ::= { upsBattery 5 }
 
-upsBatteryCurrent OBJECT-TYPE
-    SYNTAX  INTEGER (-2147483648..2147483647)   -- UNITS 0.1 Amp DC
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present battery current."
-    ::= { upsBattery  6 }
+   upsBatteryCurrent OBJECT-TYPE
+       SYNTAX     Integer32
+       UNITS      "0.1 Amp DC"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present battery current."
+       ::= { upsBattery 6 }
 
-upsBatteryTemperature OBJECT-TYPE
-    SYNTAX  INTEGER (-2147483648..2147483647)   -- UNITS degrees Centigrade
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The ambient temperature at or near the UPS Battery
+   upsBatteryTemperature OBJECT-TYPE
+       SYNTAX     Integer32
+       UNITS      "degrees Centigrade"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The ambient temperature at or near the UPS Battery
                casing."
-    ::= { upsBattery  7 }
+       ::= { upsBattery 7 }
 
-upsInput OBJECT IDENTIFIER ::= { upsObjects  3 }
 
-upsInputLineBads OBJECT-TYPE
-    SYNTAX  Counter
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "A count of the number of times the input entered an
+   --
+   -- Input Group
+   --
+
+   upsInput              OBJECT IDENTIFIER ::= { upsObjects 3 }
+
+   upsInputLineBads OBJECT-TYPE
+       SYNTAX     Counter32
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "A count of the number of times the input entered an
                out-of-tolerance condition as defined by the
                manufacturer.  This count is incremented by one each
                time the input transitions from zero out-of-tolerance
                lines to one or more input lines out-of-tolerance."
-    ::= { upsInput  1 }
+       ::= { upsInput 1 }
 
-upsInputNumLines OBJECT-TYPE
-    SYNTAX  NonNegativeInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The number of input lines utilized in this device.
+   upsInputNumLines OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The number of input lines utilized in this device.
                This variable indicates the number of rows in the
                input table."
-    ::= { upsInput  2 }
+       ::= { upsInput 2 }
 
-upsInputTable OBJECT-TYPE
-    SYNTAX  SEQUENCE OF UpsInputEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "A list of input table entries.  The number of entries
+   upsInputTable OBJECT-TYPE
+       SYNTAX     SEQUENCE OF UpsInputEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "A list of input table entries.  The number of entries
                is given by the value of upsInputNumLines."
-    ::= { upsInput  3 }
+       ::= { upsInput 3 }
 
-upsInputEntry OBJECT-TYPE
-    SYNTAX  UpsInputEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "An entry containing information applicable to a
+   upsInputEntry OBJECT-TYPE
+       SYNTAX     UpsInputEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "An entry containing information applicable to a
                particular input line."
-    INDEX   { upsInputLineIndex }
-    ::= { upsInputTable  1 }
+       INDEX { upsInputLineIndex }
+       ::= { upsInputTable 1 }
 
-UpsInputEntry ::=
-    SEQUENCE {
-        upsInputLineIndex PositiveInteger,
-        upsInputFrequency NonNegativeInteger,
-        upsInputVoltage NonNegativeInteger,
-        upsInputCurrent NonNegativeInteger,
-        upsInputTruePower NonNegativeInteger
-            }
+   UpsInputEntry ::= SEQUENCE {
+       upsInputLineIndex   PositiveInteger,
+       upsInputFrequency   NonNegativeInteger,
+       upsInputVoltage     NonNegativeInteger,
+       upsInputCurrent     NonNegativeInteger,
+       upsInputTruePower   NonNegativeInteger
+   }
 
-upsInputLineIndex OBJECT-TYPE
-    SYNTAX  PositiveInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The input line identifier."
-    ::= { upsInputEntry  1 }
+   upsInputLineIndex OBJECT-TYPE
+       SYNTAX     PositiveInteger
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "The input line identifier."
+       ::= { upsInputEntry 1 }
 
-upsInputFrequency OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Hertz
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present input frequency."
-    ::= { upsInputEntry  2 }
+   upsInputFrequency OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Hertz"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present input frequency."
+       ::= { upsInputEntry 2 }
 
-upsInputVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the present input voltage."
-    ::= { upsInputEntry  3 }
+   upsInputVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the present input voltage."
+       ::= { upsInputEntry 3 }
 
-upsInputCurrent OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 RMS Amp
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the present input current."
-    ::= { upsInputEntry  4 }
+   upsInputCurrent OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 RMS Amp"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the present input current."
+       ::= { upsInputEntry 4 }
 
-upsInputTruePower OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS Watts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the present input true power."
-    ::= { upsInputEntry  5 }
+   upsInputTruePower OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "Watts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the present input true power."
+       ::= { upsInputEntry 5 }
 
-upsOutput OBJECT IDENTIFIER ::= { upsObjects  4 }
 
-upsOutputSource OBJECT-TYPE
-    SYNTAX  INTEGER {
-    other(1),
-    none(2),
-    normal(3),
-    bypass(4),
-    battery(5),
-    booster(6),
-    reducer(7)
-}
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present source of output power.  The enumeration
+   --
+   -- The Output group.
+   --
+
+   upsOutput             OBJECT IDENTIFIER ::= { upsObjects 4 }
+
+   upsOutputSource OBJECT-TYPE
+       SYNTAX     INTEGER {
+           other(1),
+           none(2),
+           normal(3),
+           bypass(4),
+           battery(5),
+           booster(6),
+           reducer(7)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present source of output power.  The enumeration
                none(2) indicates that there is no source of output
                power (and therefore no output power), for example,
                the system has opened the output breaker."
-    ::= { upsOutput  1 }
+       ::= { upsOutput 1 }
 
-upsOutputFrequency OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Hertz
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present output frequency."
-    ::= { upsOutput  2 }
+   upsOutputFrequency OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Hertz"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present output frequency."
+       ::= { upsOutput 2 }
 
-upsOutputNumLines OBJECT-TYPE
-    SYNTAX  NonNegativeInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The number of output lines utilized in this device.
+   upsOutputNumLines OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The number of output lines utilized in this device.
                This variable indicates the number of rows in the
                output table."
-    ::= { upsOutput  3 }
+       ::= { upsOutput 3 }
 
-upsOutputTable OBJECT-TYPE
-    SYNTAX  SEQUENCE OF UpsOutputEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "A list of output table entries.  The number of
+   upsOutputTable OBJECT-TYPE
+       SYNTAX     SEQUENCE OF UpsOutputEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "A list of output table entries.  The number of
                entries is given by the value of upsOutputNumLines."
-    ::= { upsOutput  4 }
+       ::= { upsOutput 4 }
 
-upsOutputEntry OBJECT-TYPE
-    SYNTAX  UpsOutputEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "An entry containing information applicable to a
+   upsOutputEntry OBJECT-TYPE
+       SYNTAX     UpsOutputEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "An entry containing information applicable to a
                particular output line."
-    INDEX   { upsOutputLineIndex }
-    ::= { upsOutputTable  1 }
+       INDEX { upsOutputLineIndex }
+       ::= { upsOutputTable 1 }
 
-UpsOutputEntry ::=
-    SEQUENCE {
-        upsOutputLineIndex          PositiveInteger,
-        upsOutputVoltage            NonNegativeInteger,
-        upsOutputCurrent            NonNegativeInteger,
-        upsOutputPower              NonNegativeInteger,
-        upsOutputPercentLoad        INTEGER
-    }
+   UpsOutputEntry ::= SEQUENCE {
+       upsOutputLineIndex   PositiveInteger,
+       upsOutputVoltage     NonNegativeInteger,
+       upsOutputCurrent     NonNegativeInteger,
+       upsOutputPower       NonNegativeInteger,
+       upsOutputPercentLoad INTEGER
+   }
 
-upsOutputLineIndex OBJECT-TYPE
-    SYNTAX  PositiveInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The output line identifier."
-    ::= { upsOutputEntry  1 }
+   upsOutputLineIndex OBJECT-TYPE
+       SYNTAX     PositiveInteger
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "The output line identifier."
+       ::= { upsOutputEntry 1 }
 
-upsOutputVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present output voltage."
-    ::= { upsOutputEntry  2 }
+   upsOutputVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present output voltage."
+       ::= { upsOutputEntry 2 }
 
-upsOutputCurrent OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 RMS Amp
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present output current."
-    ::= { upsOutputEntry  3 }
+   upsOutputCurrent OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 RMS Amp"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present output current."
+       ::= { upsOutputEntry 3 }
 
-upsOutputPower OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS Watts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present output true power."
-    ::= { upsOutputEntry  4 }
+   upsOutputPower OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "Watts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present output true power."
+       ::= { upsOutputEntry 4 }
 
-upsOutputPercentLoad OBJECT-TYPE
-    SYNTAX  INTEGER     -- UNITS percent
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The percentage of the UPS power capacity presently
+   upsOutputPercentLoad OBJECT-TYPE
+       SYNTAX     INTEGER (0..200)
+       UNITS      "percent"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The percentage of the UPS power capacity presently
                being used on this output line, i.e., the greater of
                the percent load of true power capacity and the
                percent load of VA."
-    ::= { upsOutputEntry  5 }
+       ::= { upsOutputEntry 5 }
 
-upsBypass OBJECT IDENTIFIER ::= { upsObjects  5 }
 
-upsBypassFrequency OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Hertz
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present bypass frequency."
-    ::= { upsBypass  1 }
 
-upsBypassNumLines OBJECT-TYPE
-    SYNTAX  NonNegativeInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The number of bypass lines utilized in this device.
+   --
+   -- The Bypass group.
+   --
+
+   upsBypass             OBJECT IDENTIFIER ::= { upsObjects 5 }
+
+   upsBypassFrequency OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Hertz"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present bypass frequency."
+       ::= { upsBypass 1 }
+
+   upsBypassNumLines OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The number of bypass lines utilized in this device.
                This entry indicates the number of rows in the bypass
                table."
-    ::= { upsBypass  2 }
+       ::= { upsBypass 2 }
 
-upsBypassTable OBJECT-TYPE
-    SYNTAX  SEQUENCE OF UpsBypassEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "A list of bypass table entries.  The number of
+   upsBypassTable OBJECT-TYPE
+       SYNTAX     SEQUENCE OF UpsBypassEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "A list of bypass table entries.  The number of
                entries is given by the value of upsBypassNumLines."
-    ::= { upsBypass  3 }
+       ::= { upsBypass 3 }
 
-upsBypassEntry OBJECT-TYPE
-    SYNTAX  UpsBypassEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "An entry containing information applicable to a
+   upsBypassEntry OBJECT-TYPE
+       SYNTAX     UpsBypassEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "An entry containing information applicable to a
                particular bypass input."
-    INDEX   { upsBypassLineIndex }
-    ::= { upsBypassTable  1 }
+       INDEX { upsBypassLineIndex }
+       ::= { upsBypassTable 1 }
 
-UpsBypassEntry ::=
-    SEQUENCE {
-        upsBypassLineIndex          PositiveInteger,
-        upsBypassVoltage            NonNegativeInteger,
-        upsBypassCurrent            NonNegativeInteger,
-        upsBypassPower              NonNegativeInteger
-    }
+   UpsBypassEntry ::= SEQUENCE {
+       upsBypassLineIndex  PositiveInteger,
+       upsBypassVoltage    NonNegativeInteger,
+       upsBypassCurrent    NonNegativeInteger,
+       upsBypassPower      NonNegativeInteger
+   }
 
-upsBypassLineIndex OBJECT-TYPE
-    SYNTAX  PositiveInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The bypass line identifier."
-    ::= { upsBypassEntry  1 }
+   upsBypassLineIndex OBJECT-TYPE
+       SYNTAX     PositiveInteger
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "The bypass line identifier."
+       ::= { upsBypassEntry 1 }
 
-upsBypassVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present bypass voltage."
-    ::= { upsBypassEntry  2 }
+   upsBypassVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present bypass voltage."
+       ::= { upsBypassEntry 2 }
 
-upsBypassCurrent OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 RMS Amp
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present bypass current."
-    ::= { upsBypassEntry  3 }
+   upsBypassCurrent OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 RMS Amp"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present bypass current."
+       ::= { upsBypassEntry 3 }
 
-upsBypassPower OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS Watts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present true power conveyed by the bypass."
-    ::= { upsBypassEntry  4 }
+   upsBypassPower OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "Watts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present true power conveyed by the bypass."
+       ::= { upsBypassEntry 4 }
 
-upsAlarm OBJECT IDENTIFIER ::= { upsObjects  6 }
 
-upsAlarmsPresent OBJECT-TYPE
-    SYNTAX  Gauge
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The present number of active alarm conditions."
-    ::= { upsAlarm  1 }
+   --
+   -- The Alarm group.
+   --
 
-upsAlarmTable OBJECT-TYPE
-    SYNTAX  SEQUENCE OF UpsAlarmEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "A list of alarm table entries.  The table contains
+   upsAlarm              OBJECT IDENTIFIER ::= { upsObjects 6 }
+
+   upsAlarmsPresent OBJECT-TYPE
+       SYNTAX     Gauge32
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The present number of active alarm conditions."
+       ::= { upsAlarm 1 }
+
+   upsAlarmTable OBJECT-TYPE
+       SYNTAX     SEQUENCE OF UpsAlarmEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "A list of alarm table entries.  The table contains
                zero, one, or many rows at any moment, depending upon
                the number of alarm conditions in effect.  The table
                is initially empty at agent startup.  The agent
@@ -490,8 +553,8 @@ upsAlarmTable OBJECT-TYPE
                not be assumed to be in chronological order because
                upsAlarmId might have wrapped.
 
-               Alarms are named by an OBJECT IDENTIFIER,
-               upsAlarmDescr, to allow a single table to
+               Alarms are named by an AutonomousType (OBJECT
+               IDENTIFIER), upsAlarmDescr, to allow a single table to
                reflect well known alarms plus alarms defined by a
                particular implementation, i.e., as documented in the
                private enterprise MIB definition for the device.  No
@@ -503,336 +566,542 @@ upsAlarmTable OBJECT-TYPE
 
                The number of rows in the table at any given time is
                reflected by the value of upsAlarmsPresent."
-    ::= { upsAlarm  2 }
+       ::= { upsAlarm 2 }
 
-upsAlarmEntry OBJECT-TYPE
-    SYNTAX  UpsAlarmEntry
-    ACCESS  not-accessible
-    STATUS  mandatory
-    DESCRIPTION
-           "An entry containing information applicable to a
+   upsAlarmEntry OBJECT-TYPE
+       SYNTAX     UpsAlarmEntry
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "An entry containing information applicable to a
                particular alarm."
-    INDEX   { upsAlarmId }
-    ::= { upsAlarmTable  1 }
+       INDEX { upsAlarmId }
+       ::= { upsAlarmTable 1 }
 
-UpsAlarmEntry ::=
-    SEQUENCE {
-        upsAlarmId            PositiveInteger,
-        upsAlarmDescr         AutonomousType,
-        upsAlarmTime          TimeStamp
-    }
+   UpsAlarmEntry ::= SEQUENCE {
+       upsAlarmId          PositiveInteger,
+       upsAlarmDescr       AutonomousType,
+       upsAlarmTime        TimeStamp
+   }
 
-upsAlarmId OBJECT-TYPE
-    SYNTAX  PositiveInteger
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "A unique identifier for an alarm condition.  This
+   upsAlarmId OBJECT-TYPE
+       SYNTAX     PositiveInteger
+       MAX-ACCESS not-accessible
+       STATUS     current
+       DESCRIPTION
+               "A unique identifier for an alarm condition.  This
                value must remain constant."
-    ::= { upsAlarmEntry  1 }
+       ::= { upsAlarmEntry 1 }
 
-upsAlarmDescr OBJECT-TYPE
-    SYNTAX  AutonomousType
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "A reference to an alarm description object.  The
+   upsAlarmDescr OBJECT-TYPE
+       SYNTAX     AutonomousType
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "A reference to an alarm description object.  The
                object referenced should not be accessible, but rather
                be used to provide a unique description of the alarm
                condition."
-    ::= { upsAlarmEntry  2 }
+       ::= { upsAlarmEntry 2 }
 
-upsAlarmTime OBJECT-TYPE
-    SYNTAX  TimeStamp
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The value of sysUpTime when the alarm condition was
+   upsAlarmTime OBJECT-TYPE
+       SYNTAX     TimeStamp
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The value of sysUpTime when the alarm condition was
                detected.  If the alarm condition was detected at the
                time of agent startup and presumably existed before
                agent startup, the value of upsAlarmTime shall equal
                0."
-    ::= { upsAlarmEntry  3 }
+       ::= { upsAlarmEntry 3 }
 
-  upsAlarmID OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "A unique identifier for an alarm condition.  This
-              value must remain constant."
-      ::= { upsAlarm 4 }
 
-  upsAlarmDESCR OBJECT-TYPE
-      SYNTAX DisplayString (SIZE(0..63))
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "A reference to an alarm description object.  The
-              object references should not be accessible, but rather
-              be used to provide a unique description of the alarm
-              condition."
-      ::= { upsAlarm 5 }
+   --
+   -- Well known alarm conditions.
+   --
 
-upsWellKnownAlarms OBJECT IDENTIFIER ::= { upsAlarm  3 }
+   upsWellKnownAlarms    OBJECT IDENTIFIER ::= { upsAlarm 3 }
+   upsAlarmBatteryBad OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "One or more batteries have been determined to require
+               replacement."
+       ::= { upsWellKnownAlarms  1 }
 
-upsAlarmBatteryBad OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "One or more batteries have been determined to require
-              replacement."
-      ::= { upsWellKnownAlarms 1 }
+   upsAlarmOnBattery OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "The UPS is drawing power from the batteries."
+       ::= { upsWellKnownAlarms  2 }
 
-upsAlarmOnBattery OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "The UPS is drawing power from the batteries."
-      ::= { upsWellKnownAlarms 2 }
-
-  upsAlarmLowBattery OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
+   upsAlarmLowBattery OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
                "The remaining battery run-time is less than or equal
                to upsConfigLowBattTime."
-      ::= { upsWellKnownAlarms 3 }
+       ::= { upsWellKnownAlarms  3 }
 
-  upsAlarmDepletedBattery OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "The UPS will be unable to sustain the present load
-              when and if the utility power is lost."
-      ::= { upsWellKnownAlarms 4 }
 
-  upsAlarmTempBad OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "A temperature is out of tolerance."
-      ::= { upsWellKnownAlarms 5 }
+   upsAlarmDepletedBattery OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "The UPS will be unable to sustain the present load
+               when and if the utility power is lost."
+       ::= { upsWellKnownAlarms  4 }
 
-   upsAlarmInputBad OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmTempBad OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "A temperature is out of tolerance."
+       ::= { upsWellKnownAlarms  5 }
+
+   upsAlarmInputBad OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "An input condition is out of tolerance."
        ::= { upsWellKnownAlarms  6 }
 
-   upsAlarmOutputBad OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmOutputBad OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "An output condition (other than OutputOverload) is
                out of tolerance."
        ::= { upsWellKnownAlarms  7 }
 
-  upsAlarmOutputOverload OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "The output load exceeds the UPS output capacity."
-      ::= { upsWellKnownAlarms 8 }
+   upsAlarmOutputOverload OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "The output load exceeds the UPS output capacity."
+       ::= { upsWellKnownAlarms  8 }
 
-    upsAlarmOnBypass OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmOnBypass OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The Bypass is presently engaged on the UPS."
        ::= { upsWellKnownAlarms  9 }
 
-   upsAlarmBypassBad OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmBypassBad OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The Bypass is out of tolerance."
        ::= { upsWellKnownAlarms 10 }
 
- upsAlarmOutputOffAsRequested OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
+   upsAlarmOutputOffAsRequested OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
                "The UPS has shutdown as requested, i.e., the output
                is off."
-      ::= { upsWellKnownAlarms 11 }
+       ::= { upsWellKnownAlarms 11 }
 
-upsAlarmUpsOffAsRequested OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmUpsOffAsRequested OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The entire UPS has shutdown as commanded."
        ::= { upsWellKnownAlarms 12 }
 
-upsAlarmChargerFailed OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmChargerFailed OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "An uncorrected problem has been detected within the
                UPS charger subsystem."
        ::= { upsWellKnownAlarms 13 }
 
-upsAlarmUpsOutputOff OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
+   upsAlarmUpsOutputOff OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
                "The output of the UPS is in the off state."
-      ::= { upsWellKnownAlarms 14 }
+       ::= { upsWellKnownAlarms 14 }
 
-    upsAlarmUpsSystemOff OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmUpsSystemOff OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The UPS system is in the off state."
        ::= { upsWellKnownAlarms 15 }
-
-upsAlarmFanFailure OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmFanFailure OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The failure of one or more fans in the UPS has been
                detected."
        ::= { upsWellKnownAlarms 16 }
 
-upsAlarmFuseFailure OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmFuseFailure OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The failure of one or more fuses has been detected."
        ::= { upsWellKnownAlarms 17 }
 
-upsAlarmGeneralFault OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmGeneralFault OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "A general fault in the UPS has been detected."
        ::= { upsWellKnownAlarms 18 }
 
- upsAlarmDiagnosticTestFailed OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "The result of the last diagnostic test indicates a
-              failure."
-      ::= { upsWellKnownAlarms 19 }
+   upsAlarmDiagnosticTestFailed OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "The result of the last diagnostic test indicates a
+               failure."
+       ::= { upsWellKnownAlarms 19 }
 
-  upsAlarmCommunicationsLost OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "A problem has been encountered in the
-              communications between the agent and the UPS."
-      ::= { upsWellKnownAlarms 20 }
+   upsAlarmCommunicationsLost OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "A problem has been encountered in the communications
+               between the agent and the UPS."
+       ::= { upsWellKnownAlarms 20 }
 
-upsAlarmAwaitingPower OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmAwaitingPower OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The UPS output is off and the UPS is awaiting the
                return of input power."
        ::= { upsWellKnownAlarms 21 }
 
- upsAlarmShutdownPending OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
-      DESCRIPTION
-              "A upsShutdownAfterDelay countdown is underway."
-      ::= { upsWellKnownAlarms 22 }
+   upsAlarmShutdownPending OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "A upsShutdownAfterDelay countdown is underway."
+       ::= { upsWellKnownAlarms 22 }
 
-  upsAlarmShutdownImminent OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmShutdownImminent OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The UPS will turn off power to the load in less than
                5 seconds; this may be either a timed shutdown or a
                low battery shutdown."
-      ::= { upsWellKnownAlarms 23 }
+       ::= { upsWellKnownAlarms 23 }
 
-  upsAlarmTestInProgress OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsAlarmTestInProgress OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "A test is in progress, as initiated and indicated by
                the Test Group.  Tests initiated via other
                implementation-specific mechanisms can indicate the
                presence of the testing in the alarm table, if
-               desired, via a OBJECT-TYPE macro in the MIB
+               desired, via a OBJECT-IDENTITY macro in the MIB
                document specific to that implementation and are
-               outside the scope of this OBJECT-TYPE."
+               outside the scope of this OBJECT-IDENTITY."
        ::= { upsWellKnownAlarms 24 }
 
+   AlarmAUXInput1 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm AUX Input 1."
+       ::= { upsWellKnownAlarms 25 }
 
-upsTest OBJECT IDENTIFIER ::= { upsObjects  7 }
+   AlarmAUXInput2 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm AUX Input 2."
+       ::= { upsWellKnownAlarms 26 }
 
-  upsTestId OBJECT-TYPE
---      SYNTAX INTEGER {
---                     noTestsInitiated(1),
---                     abortTestInProgress(2),
---                     generalSystemsTest(3),
---                     checkBatteryTest(4),
---                     deepBatteryCalibration(5)
---                     }
-      SYNTAX OBJECT IDENTIFIER 
-      ACCESS read-write
-      STATUS mandatory
-      DESCRIPTION
-              "The test named by an OBJECT IDENTIFIER which
-              allows a standard mechanism for the initiation of
-              test, including the well known tests identified in
-              this document as well as those introduced by a
-              particular implementation, i.e., as
-              documented in the private enterprise MIB definition
-              for the device.
+   AlarmAUXInput3 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm AUX Input 3."
+       ::= { upsWellKnownAlarms 27 }
 
-              Setting this variable initiates the named test.  Sets
-              to this variable require the presence of
-              upsTestSpinLock in the same SNMP message.
+   AlarmAUXInput4 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm AUX Input 4."
+       ::= { upsWellKnownAlarms 28 }
 
-              The set request will be rejected with an appropriate
-              error message if the requested test cannot be
-              performed, including attempts to start a test when
-              another test is already in progress.  Tests in
-              progress may be aborted by setting this variable to
-              upsTestAbortTestInProgress.
+   AlarmSiteManagerDigitalInput1 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 1."
+       ::= { upsWellKnownAlarms 29 }
 
-              Read operations return the value of the name of the
-              test in progress if a test is in progress or the name
-              of the last test performed if no test is in progress,
-              unless no test has bee run, in which case the well
-              known value upsTestNoTestsInitiated is returned."
-              ::= { upsTest 1 }
+   AlarmSiteManagerDigitalInput2 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 2."
+       ::= { upsWellKnownAlarms 30 }
 
-upsTestSpinLock OBJECT-TYPE
-    SYNTAX  TestAndIncr
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "A spin lock on the test subsystem.  The spinlock is
+   AlarmSiteManagerDigitalInput3 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 3."
+       ::= { upsWellKnownAlarms 31 }
+
+   AlarmSiteManagerDigitalInput4 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 4."
+       ::= { upsWellKnownAlarms 32 }
+
+   AlarmSiteManagerDigitalInput5 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 5."
+       ::= { upsWellKnownAlarms 33 }
+
+   AlarmSiteManagerDigitalInput6 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 6."
+       ::= { upsWellKnownAlarms 34 }
+
+   AlarmSiteManagerDigitalInput7 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 7."
+       ::= { upsWellKnownAlarms 35 }
+
+   AlarmSiteManagerDigitalInput8 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Digital Input 8."
+       ::= { upsWellKnownAlarms 36 }
+
+   AlarmSiteManagerAnalogInput1 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 1."
+       ::= { upsWellKnownAlarms 37 }
+
+   AlarmSiteManagerAnalogInput2 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 2."
+       ::= { upsWellKnownAlarms 38 }
+
+   AlarmSiteManagerAnalogInput3 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 3."
+       ::= { upsWellKnownAlarms 39 }
+
+   AlarmSiteManagerAnalogInput4 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 4."
+       ::= { upsWellKnownAlarms 40 }
+
+   AlarmSiteManagerAnalogInput5 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 5."
+       ::= { upsWellKnownAlarms 41 }
+
+   AlarmSiteManagerAnalogInput6 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 6."
+       ::= { upsWellKnownAlarms 42 }
+
+   AlarmSiteManagerAnalogInput7 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 7."
+       ::= { upsWellKnownAlarms 43 }
+
+   AlarmSiteManagerAnalogInput8 OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SiteManager Analog Input 8."
+       ::= { upsWellKnownAlarms 44 }
+
+   AlarmSensorMan1Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 1 lower threshold reached."
+       ::= { upsWellKnownAlarms 45 }
+
+   AlarmSensorMan2Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 2 lower threshold reached."
+       ::= { upsWellKnownAlarms 46 }
+
+   AlarmSensorMan3Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 3 lower threshold reached."
+       ::= { upsWellKnownAlarms 47 }
+
+   AlarmSensorMan4Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 4 lower threshold reached."
+       ::= { upsWellKnownAlarms 48 }
+
+   AlarmSensorMan5Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 5 lower threshold reached."
+       ::= { upsWellKnownAlarms 49 }
+
+   AlarmSensorMan6Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 6 lower threshold reached."
+       ::= { upsWellKnownAlarms 50 }
+
+   AlarmSensorMan7Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 7 lower threshold reached."
+       ::= { upsWellKnownAlarms 51 }
+
+   AlarmSensorMan8Low OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 8 lower threshold reached."
+       ::= { upsWellKnownAlarms 52 }
+
+   AlarmBadiCellOverVoltage OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Cell Overvoltage"
+       ::= { upsWellKnownAlarms 53 }
+
+   AlarmBadiCellUnderVoltage OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Cell Undervoltage"
+       ::= { upsWellKnownAlarms 54 }
+
+   AlarmBadiCellDeepVoltage OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Cell Deepvoltage"
+       ::= { upsWellKnownAlarms 55 }
+
+   AlarmBadiTotalOverVoltage OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Total Overvoltage"
+       ::= { upsWellKnownAlarms 56 }
+
+   AlarmBadiTotalUnderVoltage OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Total Undervoltage"
+       ::= { upsWellKnownAlarms 57 }
+
+   AlarmBadiOverTemperature OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Overtemperature"
+       ::= { upsWellKnownAlarms 58 }
+
+   AlarmBadiUnderTemperature OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Undertemperature"
+       ::= { upsWellKnownAlarms 59 }
+
+   StatusDischarging OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Discharging"
+       ::= { upsWellKnownAlarms 60 }
+
+   StatusCharging OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Charging"
+       ::= { upsWellKnownAlarms 61 }
+
+   AlarmSensorMan1High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 1 upper threshold reached."
+       ::= { upsWellKnownAlarms 62 }
+
+   AlarmSensorMan2High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 2 upper threshold reached."
+       ::= { upsWellKnownAlarms 63 }
+
+   AlarmSensorMan3High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 3 upper threshold reached."
+       ::= { upsWellKnownAlarms 64 }
+
+   AlarmSensorMan4High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 4 upper threshold reached."
+       ::= { upsWellKnownAlarms 65 }
+
+   AlarmSensorMan5High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 5 upper threshold reached."
+       ::= { upsWellKnownAlarms 66 }
+
+   AlarmSensorMan6High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 6 upper threshold reached."
+       ::= { upsWellKnownAlarms 67 }
+
+   AlarmSensorMan7High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 7 upper threshold reached."
+       ::= { upsWellKnownAlarms 68 }
+
+   AlarmSensorMan8High OBJECT-IDENTITY
+       STATUS     current
+       DESCRIPTION
+               "Alarm SensorMan sensor 8 upper threshold reached."
+       ::= { upsWellKnownAlarms 69 }
+
+
+   --
+   -- The Test Group
+   --
+
+   upsTest               OBJECT IDENTIFIER ::= { upsObjects 7 }
+
+   upsTestId OBJECT-TYPE
+       SYNTAX     OBJECT IDENTIFIER
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The test is named by an OBJECT IDENTIFIER which
+               allows a standard mechanism for the initiation of
+               tests, including the well known tests identified in
+               this document as well as those introduced by a
+               particular implementation, i.e., as documented in the
+               private enterprise MIB definition for the device.
+
+               Setting this variable initiates the named test. Sets
+               to this variable require the presence of
+               upsTestSpinLock in the same SNMP message.
+
+               The set request will be rejected with an appropriate
+               error message if the requested test cannot be
+               performed, including attempts to start a test when
+               another test is already in progress.  The status of
+               the current or last test is maintained in
+               upsTestResultsSummary. Tests in progress may be
+               aborted by setting the upsTestId variable to
+               upsTestAbortTestInProgress.
+
+               Read operations return the value of the name of the
+               test in progress if a test is in progress or the name
+               of the last test performed if no test is in progress,
+               unless no test has been run, in which case the well
+               known value upsTestNoTestsInitiated is returned."
+       ::= { upsTest 1 }
+
+   -- see [6] for more information on the semantics of objects with
+   -- syntax of TestAndIncr
+
+   upsTestSpinLock OBJECT-TYPE
+       SYNTAX     TestAndIncr
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "A spin lock on the test subsystem.  The spinlock is
                used as follows.
 
                Before starting a test, a manager-station should make
@@ -879,21 +1148,21 @@ upsTestSpinLock OBJECT-TYPE
                      The initial value of upsTestSpinLock at agent
                initialization shall
                      be 1."
-    ::= { upsTest  2 }
+       ::= { upsTest 2 }
 
-upsTestResultsSummary OBJECT-TYPE
-    SYNTAX  INTEGER {
-    donePass(1),
-    doneWarning(2),
-    doneError(3),
-    aborted(4),
-    inProgress(5),
-    noTestsInitiated(6)
-}
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The results of the current or last UPS diagnostics
+   upsTestResultsSummary OBJECT-TYPE
+       SYNTAX     INTEGER {
+           donePass(1),
+           doneWarning(2),
+           doneError(3),
+           aborted(4),
+           inProgress(5),
+           noTestsInitiated(6)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The results of the current or last UPS diagnostics
                test performed.  The values for donePass(1),
                doneWarning(2), and doneError(3) indicate that the
                test completed either successfully, with a warning, or
@@ -907,84 +1176,79 @@ upsTestResultsSummary OBJECT-TYPE
                the last reinitialization of the network management
                subsystem and the system has no provision for non-
                volatile storage of test results."
-    ::= { upsTest  3 }
+       ::= { upsTest 3 }
 
-upsTestResultsDetail OBJECT-TYPE
-    SYNTAX  DisplayString
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "Additional information about upsTestResultsSummary.
+   upsTestResultsDetail OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..255))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Additional information about upsTestResultsSummary.
                If no additional information available, a zero length
                string is returned."
-    ::= { upsTest  4 }
+       ::= { upsTest 4 }
 
-upsTestStartTime OBJECT-TYPE
-    SYNTAX  TimeStamp
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The value of sysUpTime at the time the test in
+   upsTestStartTime OBJECT-TYPE
+       SYNTAX     TimeStamp
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The value of sysUpTime at the time the test in
                progress was initiated, or, if no test is in progress,
                the time the previous test was initiated.  If the
                value of upsTestResultsSummary is noTestsInitiated(6),
                upsTestStartTime has the value 0."
-    ::= { upsTest  5 }
+       ::= { upsTest 5 }
 
-upsTestElapsedTime OBJECT-TYPE
-    SYNTAX  TimeInterval
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The amount of time, in TimeTicks, since the test in
+   upsTestElapsedTime OBJECT-TYPE
+       SYNTAX     TimeInterval
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The amount of time, in TimeTicks, since the test in
                progress was initiated, or, if no test is in progress,
                the previous test took to complete.  If the value of
                upsTestResultsSummary is noTestsInitiated(6),
                upsTestElapsedTime has the value 0."
-    ::= { upsTest  6 }
+       ::= { upsTest 6 }
 
-upsWellKnownTests OBJECT IDENTIFIER ::= { upsTest  7 }
+   --
+   -- Well known tests.
+   --
 
-upsTestNoTestsInitiated OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsWellKnownTests     OBJECT IDENTIFIER ::= { upsTest 7 }
+
+
+   upsTestNoTestsInitiated OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "No tests have been initiated and no test is in
                progress."
        ::= { upsWellKnownTests  1 }
 
-upsTestAbortTestInProgress OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsTestAbortTestInProgress OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The test in progress is to be aborted / the test in
                progress was aborted."
        ::= { upsWellKnownTests  2 }
 
-upsTestGeneralSystemsTest OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsTestGeneralSystemsTest OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The manufacturer's standard test of UPS device
                systems."
        ::= { upsWellKnownTests  3 }
 
-upsTestQuickBatteryTest OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsTestQuickBatteryTest OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "A test that is sufficient to determine if the battery
                needs replacement."
        ::= { upsWellKnownTests  4 }
 
-upsTestDeepBatteryCalibration OBJECT-TYPE
-      SYNTAX INTEGER
-      ACCESS read-only
-      STATUS mandatory
+   upsTestDeepBatteryCalibration OBJECT-IDENTITY
+       STATUS     current
        DESCRIPTION
                "The system is placed on battery to a discharge level,
                set by the manufacturer, sufficient to determine
@@ -996,17 +1260,21 @@ upsTestDeepBatteryCalibration OBJECT-TYPE
        ::= { upsWellKnownTests  5 }
 
 
-upsControl OBJECT IDENTIFIER ::= { upsObjects  8 }
+   --
+   -- The Control group.
+   --
 
-upsShutdownType OBJECT-TYPE
-    SYNTAX  INTEGER {
-    output(1),
-    system(2)
-}
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "This object determines the nature of the action to be
+   upsControl            OBJECT IDENTIFIER ::= { upsObjects 8 }
+
+   upsShutdownType OBJECT-TYPE
+       SYNTAX     INTEGER {
+           output(1),
+           system(2)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "This object determines the nature of the action to be
                taken at the time when the countdown of the
                upsShutdownAfterDelay and upsRebootWithDuration
                objects reaches zero.
@@ -1016,14 +1284,15 @@ upsShutdownType OBJECT-TYPE
                UPS to turn off.  Setting this object to system(2)
                indicates that shutdown requests will cause the entire
                UPS system to turn off."
-    ::= { upsControl  1 }
+       ::= { upsControl 1 }
 
-upsShutdownAfterDelay OBJECT-TYPE
-    SYNTAX  INTEGER     -- UNITS seconds
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "Setting this object will shutdown (i.e., turn off)
+   upsShutdownAfterDelay OBJECT-TYPE
+       SYNTAX     INTEGER (-1..2147483648)
+       UNITS      "seconds"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Setting this object will shutdown (i.e., turn off)
                either the UPS output or the UPS system (as determined
                by the value of upsShutdownType at the time of
                shutdown) after the indicated number of seconds, or
@@ -1043,14 +1312,15 @@ upsShutdownAfterDelay OBJECT-TYPE
                is restarted while a shutdown countdown is in effect,
                the countdown may be aborted.  Sets to this object
                override any upsShutdownAfterDelay already in effect."
-    ::= { upsControl  2 }
+       ::= { upsControl 2 }
 
-upsStartupAfterDelay OBJECT-TYPE
-    SYNTAX  INTEGER     -- UNITS seconds
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "Setting this object will start the output after the
+   upsStartupAfterDelay OBJECT-TYPE
+       SYNTAX     INTEGER (-1..2147483648)
+       UNITS      "seconds"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Setting this object will start the output after the
                indicated number of seconds, including starting the
                UPS, if necessary.  Setting this object to 0 will
                cause the startup to occur immediately.  Setting this
@@ -1067,14 +1337,15 @@ upsStartupAfterDelay OBJECT-TYPE
                some systems, if the agent is restarted while a
                startup countdown is in effect, the countdown is
                aborted."
-    ::= { upsControl  3 }
+       ::= { upsControl 3 }
 
-upsRebootWithDuration OBJECT-TYPE
-    SYNTAX  INTEGER     -- UNITS seconds
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "Setting this object will immediately shutdown (i.e.,
+   upsRebootWithDuration OBJECT-TYPE
+       SYNTAX     INTEGER (-1..300)
+       UNITS      "seconds"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Setting this object will immediately shutdown (i.e.,
                turn off) either the UPS output or the UPS system (as
                determined by the value of upsShutdownType at the time
                of shutdown) for a period equal to the indicated
@@ -1091,17 +1362,17 @@ upsRebootWithDuration OBJECT-TYPE
                the startup should occur during a utility failure, the
                startup shall not occur until the utility power is
                restored."
-    ::= { upsControl  4 }
+       ::= { upsControl 4 }
 
-upsAutoRestart OBJECT-TYPE
-    SYNTAX  INTEGER {
-    on(1),
-    off(2)
-}
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "Setting this object to 'on' will cause the UPS system
+   upsAutoRestart OBJECT-TYPE
+       SYNTAX     INTEGER {
+           on(1),
+           off(2)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Setting this object to 'on' will cause the UPS system
                to restart after a shutdown if the shutdown occurred
                during a power loss as a result of either a
                upsShutdownAfterDelay or an internal battery depleted
@@ -1111,104 +1382,116 @@ upsAutoRestart OBJECT-TYPE
                it.  If the UPS is in a startup or reboot countdown,
                then the UPS will not restart until that delay has
                been satisfied."
-    ::= { upsControl  5 }
+       ::= { upsControl 5 }
 
-upsConfig OBJECT IDENTIFIER ::= { upsObjects  9 }
 
-upsConfigInputVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the nominal input voltage.  On those
+   --
+   -- The Configuration group.
+   --
+
+   upsConfig             OBJECT IDENTIFIER ::= { upsObjects 9 }
+
+   upsConfigInputVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the nominal input voltage.  On those
                systems which support read-write access to this
                object, if there is an attempt to set this variable to
                a value that is not supported, the request must be
                rejected and the agent shall respond with an
                appropriate error message, i.e., badValue for SNMPv1,
                or inconsistentValue for SNMPv2."
-    ::= { upsConfig  1 }
+       ::= { upsConfig 1 }
 
-upsConfigInputFreq OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Hertz
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The nominal input frequency.  On those systems which
+   upsConfigInputFreq OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Hertz"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The nominal input frequency.  On those systems which
                support read-write access to this object, if there is
                an attempt to set this variable to a value that is not
                supported, the request must be rejected and the agent
                shall respond with an appropriate error message, i.e.,
                badValue for SNMPv1, or inconsistentValue for SNMPv2."
-    ::= { upsConfig  2 }
+       ::= { upsConfig 2 }
 
-upsConfigOutputVoltage OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the nominal output voltage.  On
+   upsConfigOutputVoltage OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the nominal output voltage.  On
                those systems which support read-write access to this
                object, if there is an attempt to set this variable to
                a value that is not supported, the request must be
                rejected and the agent shall respond with an
                appropriate error message, i.e., badValue for SNMPv1,
                or inconsistentValue for SNMPv2."
-    ::= { upsConfig  3 }
+       ::= { upsConfig 3 }
 
-upsConfigOutputFreq OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS 0.1 Hertz
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The nominal output frequency.  On those systems which
+   upsConfigOutputFreq OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "0.1 Hertz"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The nominal output frequency.  On those systems which
                support read-write access to this object, if there is
                an attempt to set this variable to a value that is not
                supported, the request must be rejected and the agent
                shall respond with an appropriate error message, i.e.,
                badValue for SNMPv1, or inconsistentValue for SNMPv2."
-    ::= { upsConfig  4 }
+       ::= { upsConfig 4 }
 
-upsConfigOutputVA OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS Volt-Amps
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the nominal Volt-Amp rating."
-    ::= { upsConfig  5 }
+   upsConfigOutputVA OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "Volt-Amps"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the nominal Volt-Amp rating."
+       ::= { upsConfig 5 }
 
-upsConfigOutputPower OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS Watts
-    ACCESS  read-only
-    STATUS  mandatory
-    DESCRIPTION
-           "The magnitude of the nominal true power rating."
-    ::= { upsConfig  6 }
+   upsConfigOutputPower OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "Watts"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "The magnitude of the nominal true power rating."
+       ::= { upsConfig 6 }
 
-upsConfigLowBattTime OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS minutes
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The value of upsEstimatedMinutesRemaining at which a
+   upsConfigLowBattTime OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "minutes"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The value of upsEstimatedMinutesRemaining at which a
                lowBattery condition is declared.  For agents which
                support only discrete (discontinuous) values, then the
                agent shall round up to the next supported value.  If
                the requested value is larger than the largest
                supported value, then the largest supported value
                shall be selected."
-    ::= { upsConfig  7 }
+       ::= { upsConfig 7 }
 
-upsConfigAudibleStatus OBJECT-TYPE
-    SYNTAX  INTEGER {
-    disabled(1),
-    enabled(2),
-    muted(3)
-}
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The requested state of the audible alarm.  When in
+   upsConfigAudibleStatus OBJECT-TYPE
+       SYNTAX     INTEGER {
+           disabled(1),
+           enabled(2),
+           muted(3)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The requested state of the audible alarm.  When in
                the disabled state, the audible alarm should never
                sound.  The enabled state is self-describing.  Setting
                this object to muted(3) when the audible alarm is
@@ -1220,132 +1503,1799 @@ upsConfigAudibleStatus OBJECT-TYPE
                of the value muted(3) when the audible alarm is not
                sounding shall be accepted but otherwise shall have no
                effect."
-    ::= { upsConfig  8 }
+       ::= { upsConfig 8 }
 
-upsConfigLowVoltageTransferPoint OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The minimum input line voltage allowed before the UPS
+   upsConfigLowVoltageTransferPoint OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The minimum input line voltage allowed before the UPS
                system transfers to battery backup."
-    ::= { upsConfig  9 }
+       ::= { upsConfig 9 }
 
-upsConfigHighVoltageTransferPoint OBJECT-TYPE
-    SYNTAX  NonNegativeInteger  -- UNITS RMS Volts
-    ACCESS  read-write
-    STATUS  mandatory
-    DESCRIPTION
-           "The maximum line voltage allowed before the UPS
+   upsConfigHighVoltageTransferPoint OBJECT-TYPE
+       SYNTAX     NonNegativeInteger
+       UNITS      "RMS Volts"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The maximum line voltage allowed before the UPS
                system transfers to battery backup."
-    ::= { upsConfig  10 }
+       ::= { upsConfig 10 }
 
-upsTraps OBJECT IDENTIFIER ::= { upsMIB  2 }
+   --
+   -- The Dioad group.
+   --
+   Sitemanager             OBJECT IDENTIFIER ::= { upsObjects 10 }
+   Relais       OBJECT IDENTIFIER ::= { Sitemanager 1 }
 
-upsTrapOnBattery TRAP-TYPE
-    ENTERPRISE  upsTraps
-    VARIABLES   { upsEstimatedMinutesRemaining,  upsSecondsOnBattery,  upsConfigLowBattTime }
-    DESCRIPTION
-           "The UPS is operating on battery power.  This trap is
+   Relais1 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 1"
+       ::= { Relais 1 }
+
+   Relais2 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 2"
+       ::= { Relais 2 }
+
+   Relais3 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 3"
+       ::= { Relais 3 }
+
+   Relais4 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 4"
+       ::= { Relais 4 }
+
+   Relais5 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 5"
+       ::= { Relais 5 }
+
+   Relais6 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 6"
+       ::= { Relais 6 }
+
+   Relais7 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 7"
+       ::= { Relais 7 }
+
+   Relais8 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Relais 8"
+       ::= { Relais 8 }
+
+   Digital       OBJECT IDENTIFIER ::= { Sitemanager 2 }
+
+   Digital1 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 1"
+       ::= { Digital 1 }
+
+   Digital2 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 2"
+       ::= { Digital 2 }
+
+   Digital3 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 3"
+       ::= { Digital 3 }
+
+   Digital4 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 4"
+       ::= { Digital 4 }
+
+   Digital5 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 5"
+       ::= { Digital 5 }
+
+   Digital6 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 6"
+       ::= { Digital 6 }
+
+   Digital7 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 7"
+       ::= { Digital 7 }
+
+   Digital8 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Digital 8"
+       ::= { Digital 8 }
+
+   Analog       OBJECT IDENTIFIER ::= { Sitemanager 3 }
+
+   Analog1 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 1"
+       ::= { Analog 1 }
+
+   Analog1Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 1 Minimum"
+       ::= { Analog 2 }
+
+   Analog1Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 1 Maximum"
+       ::= { Analog 3 }
+
+   Analog2 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 2"
+       ::= { Analog 4 }
+
+   Analog2Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 2 Minimum"
+       ::= { Analog 5 }
+
+   Analog2Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "degrees centigrade"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 2 Maximum"
+       ::= { Analog 6 }
+
+   Analog3 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 3"
+       ::= { Analog 7 }
+
+   Analog3Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 3 Minimum"
+       ::= { Analog 8 }
+
+   Analog3Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 3 Maximum"
+       ::= { Analog 9 }
+
+   Analog4 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 4"
+       ::= { Analog 10 }
+
+   Analog4Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 4 Minimum"
+       ::= { Analog 11 }
+
+   Analog4Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Humidity in per mil"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 4 Maximum"
+       ::= { Analog 12 }
+
+   Analog5 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 5"
+       ::= { Analog 13 }
+
+   Analog5Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 5 Minimum"
+       ::= { Analog 14 }
+
+   Analog5Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 5 Maximum"
+       ::= { Analog 15 }
+
+   Analog6 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 6"
+       ::= { Analog 16 }
+
+   Analog6Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 6 Minimum"
+       ::= { Analog 17 }
+
+   Analog6Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 6 Maximum"
+       ::= { Analog 18 }
+
+   Analog7 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 7"
+       ::= { Analog 19 }
+
+   Analog7Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 7 Minimum"
+       ::= { Analog 20 }
+
+   Analog7Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 7 Maximum"
+       ::= { Analog 21 }
+
+   Analog8 OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Analog 8"
+       ::= { Analog 22 }
+
+   Analog8Min OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 8 Minimum"
+       ::= { Analog 23 }
+
+   Analog8Max OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Analog 8 Maximum"
+       ::= { Analog 24 }
+
+   --
+   -- The AUX group.
+   --
+   AUX             OBJECT IDENTIFIER ::= { upsObjects 11 }
+
+   AUXPort1 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "AUX-Port 1"
+       ::= { AUX 1 }
+
+   AUXPort2 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "AUX-Port 2"
+       ::= { AUX 2 }
+
+   AUXPort3 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "AUX-Port 3"
+       ::= { AUX 3 }
+
+   AUXPort4 OBJECT-TYPE
+       SYNTAX     INTEGER {
+           off(0),
+           on(1)
+       }
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "AUX-Port 4"
+       ::= { AUX 4 }
+
+
+   --
+   -- The SensorMan group.
+   --
+   SensorMan           OBJECT IDENTIFIER ::= { upsObjects 12 }
+
+   Sensor1           OBJECT IDENTIFIER ::= { SensorMan 1 }
+
+   SensorMan1Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 1"
+       ::= { Sensor1 1 }
+
+   SensorMan1Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 1"
+       ::= { Sensor1 2 }
+
+   SensorMan1Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 1"
+       ::= { Sensor1 3 }
+
+   SensorMan1ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 1"
+       ::= { Sensor1 4 }
+
+   SensorMan1ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 1"
+       ::= { Sensor1 5 }
+
+   SensorMan1Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 1"
+       ::= { Sensor1 6 }
+
+   SensorMan1Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 1"
+       ::= { Sensor1 7 }
+
+   Sensor2           OBJECT IDENTIFIER ::= { SensorMan 2 }
+
+   SensorMan2Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 2"
+       ::= { Sensor2 1 }
+
+   SensorMan2Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 2"
+       ::= { Sensor2 2 }
+
+   SensorMan2Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 2"
+       ::= { Sensor2 3 }
+
+   SensorMan2ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 2"
+       ::= { Sensor2 4 }
+
+   SensorMan2ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 2"
+       ::= { Sensor2 5 }
+
+   SensorMan2Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 2"
+       ::= { Sensor2 6 }
+
+   SensorMan2Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 2"
+       ::= { Sensor2 7 }
+
+   Sensor3           OBJECT IDENTIFIER ::= { SensorMan 3 }
+
+   SensorMan3Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 3"
+       ::= { Sensor3 1 }
+
+   SensorMan3Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 3"
+       ::= { Sensor3 2 }
+
+   SensorMan3Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 3"
+       ::= { Sensor3 3 }
+
+   SensorMan3ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 3"
+       ::= { Sensor3 4 }
+
+   SensorMan3ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 3"
+       ::= { Sensor3 5 }
+
+   SensorMan3Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 3"
+       ::= { Sensor3 6 }
+
+   SensorMan3Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 3"
+       ::= { Sensor3 7 }
+
+   Sensor4           OBJECT IDENTIFIER ::= { SensorMan 4 }
+
+   SensorMan4Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 4"
+       ::= { Sensor4 1 }
+
+   SensorMan4Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 4"
+       ::= { Sensor4 2 }
+
+   SensorMan4Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 4"
+       ::= { Sensor4 3 }
+
+   SensorMan4ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 4"
+       ::= { Sensor4 4 }
+
+   SensorMan4ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 4"
+       ::= { Sensor4 5 }
+
+   SensorMan4Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 4"
+       ::= { Sensor4 6 }
+
+   SensorMan4Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 4"
+       ::= { Sensor4 7 }
+
+   Sensor5           OBJECT IDENTIFIER ::= { SensorMan 5 }
+
+   SensorMan5Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 5"
+       ::= { Sensor5 1 }
+
+   SensorMan5Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 5"
+       ::= { Sensor5 2 }
+
+   SensorMan5Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 5"
+       ::= { Sensor5 3 }
+
+   SensorMan5ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 5"
+       ::= { Sensor5 4 }
+
+   SensorMan5ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 5"
+       ::= { Sensor5 5 }
+
+   SensorMan5Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 5"
+       ::= { Sensor5 6 }
+
+   SensorMan5Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 5"
+       ::= { Sensor5 7 }
+
+   Sensor6           OBJECT IDENTIFIER ::= { SensorMan 6 }
+
+   SensorMan6Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 6"
+       ::= { Sensor6 1 }
+
+   SensorMan6Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 6"
+       ::= { Sensor6 2 }
+
+   SensorMan6Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 6"
+       ::= { Sensor6 3 }
+
+   SensorMan6ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 6"
+       ::= { Sensor6 4 }
+
+   SensorMan6ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 6"
+       ::= { Sensor6 5 }
+
+   SensorMan6Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 6"
+       ::= { Sensor6 6 }
+
+   SensorMan6Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 6"
+       ::= { Sensor6 7 }
+
+   Sensor7           OBJECT IDENTIFIER ::= { SensorMan 7 }
+
+   SensorMan7Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 7"
+       ::= { Sensor7 1 }
+
+   SensorMan7Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 7"
+       ::= { Sensor7 2 }
+
+   SensorMan7Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 7"
+       ::= { Sensor7 3 }
+
+   SensorMan7ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 7"
+       ::= { Sensor7 4 }
+
+   SensorMan7ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 7"
+       ::= { Sensor7 5 }
+
+   SensorMan7Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 7"
+       ::= { Sensor7 6 }
+
+   SensorMan7Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 7"
+       ::= { Sensor7 7 }
+
+   Sensor8           OBJECT IDENTIFIER ::= { SensorMan 8 }
+
+   SensorMan8Value OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Value 8"
+       ::= { Sensor8 1 }
+
+   SensorMan8Location OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..79))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Location 8"
+       ::= { Sensor8 2 }
+
+   SensorMan8Unit OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE (0..63))
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Unit 8"
+       ::= { Sensor8 3 }
+
+   SensorMan8ThresholdLow OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Lower Threshold 8"
+       ::= { Sensor8 4 }
+
+   SensorMan8ThresholdHigh OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Upper Threshold 8"
+       ::= { Sensor8 5 }
+
+   SensorMan8Scaling OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.01 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Scaling Factor 8"
+       ::= { Sensor8 6 }
+
+   SensorMan8Offset OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 units"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "SensorMan Offset 8"
+       ::= { Sensor8 7 }
+
+   --
+   -- The Badi group.
+   --
+   Badi           OBJECT IDENTIFIER ::= { upsObjects 13 }
+
+   BMSType OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "A string identifying the BMS device type."
+       ::= { Badi 1 }
+
+   Status OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..19))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Status."
+       ::= { Badi 2 }
+
+   BatteryChanged OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..19))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Last Battery Change."
+       ::= { Badi 3 }
+
+   NomCap OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Ah"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Nominal Capacity [Ah]"
+       ::= { Badi 4 }
+
+   NumBlocks OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Number"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Number of blocks"
+       ::= { Badi 5 }
+
+   NumCells OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Number"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Number of cells per block"
+       ::= { Badi 6 }
+
+   CellNomVolt OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Volt"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Nominal cell voltage [Volt]"
+       ::= { Badi 7 }
+
+   ChargeState OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Percent"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Battery charge State [%]"
+       ::= { Badi 8 }
+
+   Temperature OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Degrees Celcius"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Temperature [Degrees Celcius]"
+       ::= { Badi 9 }
+
+   Voltage OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Volt"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Total Voltage [Volt]"
+       ::= { Badi 10 }
+
+   BlockNumber OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Number"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "Current block number"
+       ::= { Badi 11 }
+
+   BlockVolt OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 Volt"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Block voltage [Volt*10]"
+       ::= { Badi 12 }
+
+   BlockError OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Block error"
+       ::= { Badi 13 }
+       
+   RealCap OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "Percent"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Real capacity in percent [%]"
+       ::= { Badi 14 }
+
+   BattCurrent OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "0.1 A"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Battery current [A*10]"
+       ::= { Badi 15 }
+
+   ShuntSize OBJECT-TYPE
+       SYNTAX     INTEGER
+       UNITS      "A/60mV"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Shunt size [A/60mV]"
+       ::= { Badi 16 }
+
+   LastError OBJECT-TYPE
+       SYNTAX     DisplayString (SIZE(0..63))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Last error BMS"
+       ::= { Badi 17 }
+
+   --
+   -- notifications, i.e., traps
+   --
+   upsTraps              OBJECT IDENTIFIER ::= { upsMIB 2 }
+
+   -- This section defines the well-known notifications sent by
+   -- UPS agents.
+   -- Care must be taken to insure that no particular notification
+   -- is sent to a single receiving entity more often than once
+   -- every five seconds.
+
+   upsTrapOnBattery NOTIFICATION-TYPE
+       OBJECTS { upsEstimatedMinutesRemaining, upsSecondsOnBattery,
+                 upsConfigLowBattTime }
+       STATUS  current
+       DESCRIPTION
+               "The UPS is operating on battery power.  This trap is
                persistent and is resent at one minute intervals until
                the UPS either turns off or is no longer running on
                battery."
-    ::= 1
+     ::= { upsTraps 1 }
 
-upsTrapTestCompleted TRAP-TYPE
-    ENTERPRISE  upsTraps
-    VARIABLES   { upsTestId,  upsTestSpinLock,  upsTestResultsSummary,  upsTestResultsDetail,  upsTestStartTime,  upsTestElapsedTime }
-    DESCRIPTION
-           "This trap is sent upon completion of a UPS diagnostic
+   upsTrapTestCompleted NOTIFICATION-TYPE
+       OBJECTS { upsTestId, upsTestSpinLock,
+                 upsTestResultsSummary, upsTestResultsDetail,
+                 upsTestStartTime, upsTestElapsedTime }
+       STATUS  current
+       DESCRIPTION
+               "This trap is sent upon completion of a UPS diagnostic
                test."
-    ::= 2
+     ::= { upsTraps 2 }
 
-upsTrapAlarmEntryAdded TRAP-TYPE
-    ENTERPRISE  upsTraps
-    VARIABLES   { upsAlarmID,  upsAlarmDESCR }
-    DESCRIPTION
-           "This trap is sent each time an alarm is inserted into
+   upsTrapAlarmEntryAdded NOTIFICATION-TYPE
+       OBJECTS { upsAlarmId, upsAlarmDescr }
+       STATUS  current
+       DESCRIPTION
+               "This trap is sent each time an alarm is inserted into
                to the alarm table.  It is sent on the insertion of
                all alarms except for upsAlarmOnBattery and
                upsAlarmTestInProgress."
-    ::= 3
+     ::= { upsTraps 3 }
 
-upsTrapAlarmEntryRemoved TRAP-TYPE
-    ENTERPRISE  upsTraps
-    VARIABLES   { upsAlarmID,  upsAlarmDESCR }
-    DESCRIPTION
-           "This trap is sent each time an alarm is removed from
+   upsTrapAlarmEntryRemoved NOTIFICATION-TYPE
+       OBJECTS { upsAlarmId, upsAlarmDescr }
+       STATUS  current
+       DESCRIPTION
+               "This trap is sent each time an alarm is removed from
                the alarm table.  It is sent on the removal of all
                alarms except for upsAlarmTestInProgress."
-    ::= 4
+     ::= { upsTraps 4 }
 
-upsConformance OBJECT IDENTIFIER ::= { upsMIB  3 }
 
-upsCompliances OBJECT IDENTIFIER ::= { upsConformance  1 }
+   --
+   -- conformance information
+   --
+   upsConformance        OBJECT IDENTIFIER ::= { upsMIB 3 }
 
-upsSubsetCompliance OBJECT IDENTIFIER ::= { upsCompliances  1 }
+   upsCompliances        OBJECT IDENTIFIER ::= { upsConformance 1 }
 
-upsBasicCompliance OBJECT IDENTIFIER ::= { upsCompliances  2 }
 
-upsFullCompliance OBJECT IDENTIFIER ::= { upsCompliances  3 }
+   --
+   -- compliance statements
+   --
 
-upsGroups OBJECT IDENTIFIER ::= { upsConformance  2 }
+   upsSubsetCompliance MODULE-COMPLIANCE
+       STATUS     current
+       DESCRIPTION
 
-upsSubsetGroups OBJECT IDENTIFIER ::= { upsGroups  1 }
+               "The compliance statement for UPSs that only support
+               the two-contact communication protocol."
+       MODULE -- this module
+           MANDATORY-GROUPS  { upsSubsetIdentGroup,
+                     upsSubsetBatteryGroup, upsSubsetInputGroup,
+                     upsSubsetOutputGroup, upsSubsetAlarmGroup,
+                     upsSubsetControlGroup, upsSubsetConfigGroup }
 
-upsSubsetIdentGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  1 }
+       OBJECT     upsBatteryStatus
+       SYNTAX     INTEGER {
+           batteryNormal(2),
+           batteryLow(3)
+       }
+       DESCRIPTION
+               "Support of the values unknown(1) and
+               batteryDepleted(4) is not required."
 
-upsSubsetBatteryGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  2 }
+       OBJECT     upsAlarmDescr
+       DESCRIPTION
+               "Support of all `well known' alarm types is not
+               required.  The well known alarm types which must be
+               supported are: upsAlarmOnBattery, upsAlarmLowBattery,
+               upsAlarmInputBad, upsAlarmUpsOutputOff,
+               upsAlarmUpsSystemOff, and upsAlarmTestInProgress."
 
-upsSubsetInputGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  3 }
+       OBJECT     upsOutputSource
+       SYNTAX     INTEGER {
+           normal(2),
+           battery(4)
+       }
+       DESCRIPTION
+               "Support of the values other(1), none(2), bypass(4),
+               booster(6) and reducer(7) is not required."
 
-upsSubsetOutputGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  4 }
+       OBJECT     upsShutdownType
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one shutdown type."
 
-upsSubsetAlarmGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  6 }
+       OBJECT     upsAutoRestart
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one restart type."
 
-upsSubsetControlGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  8 }
+       OBJECT     upsConfigInputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsSubsetConfigGroup OBJECT IDENTIFIER ::= { upsSubsetGroups  9 }
+       OBJECT     upsConfigInputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsBasicGroups OBJECT IDENTIFIER ::= { upsGroups  2 }
+       OBJECT     upsConfigOutputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsBasicIdentGroup OBJECT IDENTIFIER ::= { upsBasicGroups  1 }
+       OBJECT     upsConfigOutputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsBasicBatteryGroup OBJECT IDENTIFIER ::= { upsBasicGroups  2 }
+       ::= { upsCompliances 1 }
 
-upsBasicInputGroup OBJECT IDENTIFIER ::= { upsBasicGroups  3 }
+   upsBasicCompliance MODULE-COMPLIANCE
+       STATUS     current
+       DESCRIPTION
 
-upsBasicOutputGroup OBJECT IDENTIFIER ::= { upsBasicGroups  4 }
+               "The compliance statement for UPSs that support
+               full-featured functions, such as control."
+       MODULE -- this module
+           MANDATORY-GROUPS { upsBasicIdentGroup,
+                     upsBasicBatteryGroup, upsBasicInputGroup,
+                     upsBasicOutputGroup, upsBasicAlarmGroup,
+                     upsBasicTestGroup, upsBasicControlGroup,
+                     upsBasicConfigGroup }
 
-upsBasicBypassGroup OBJECT IDENTIFIER ::= { upsBasicGroups  5 }
 
-upsBasicAlarmGroup OBJECT IDENTIFIER ::= { upsBasicGroups  6 }
+       OBJECT     upsAlarmDescr
+       DESCRIPTION
+               "Support of all `well known' alarm types is not
+               required.  The well known alarm types which must be
+               supported are: upsAlarmOnBattery, upsAlarmLowBattery,
+               upsAlarmDepletedBattery, upsAlarmTempBad,
+               upsAlarmInputBad, upsAlarmOutputOverload,
+               upsAlarmOnBypass, upsAlarmBypassBad,
+               upsAlarmOutputOffAsRequested,
+               upsAlarmUpsOffAsRequested, upsAlarmUpsOutputOff,
+               upsAlarmUpsSystemOff, upsAlarmGeneralFault,
+               upsAlarmDiagnosticTestFailed,
+               upsAlarmCommunicationsLost, upsAlarmShutdownPending,
+               and upsAlarmTestInProgress."
 
-upsBasicTestGroup OBJECT IDENTIFIER ::= { upsBasicGroups  7 }
+       OBJECT     upsTestId
+       DESCRIPTION
+               "Support of all `well known' test types is not
+               required.  If no tests are supported, then the only
+               well known test type which must be supported is
+               upsTestNoTestsInitiated."
 
-upsBasicControlGroup OBJECT IDENTIFIER ::= { upsBasicGroups  8 }
+       OBJECT     upsOutputSource
+       SYNTAX     INTEGER {
+           normal(2),
+           battery(4)
+       }
+       DESCRIPTION
+               "Support of the values other(1), none(2), bypass(4),
+               booster(6) and reducer(7) is not required."
 
-upsBasicConfigGroup OBJECT IDENTIFIER ::= { upsBasicGroups  9 }
+           GROUP upsBasicBypassGroup
+           DESCRIPTION
+               "The upsBasicBypassGroup is only required for UPSs
+               that have a Bypass present."
+       OBJECT     upsShutdownType
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one shutdown type."
 
-upsFullGroups OBJECT IDENTIFIER ::= { upsGroups  3 }
+       OBJECT     upsAutoRestart
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one restart type."
 
-upsFullIdentGroup OBJECT IDENTIFIER ::= { upsFullGroups  1 }
+       OBJECT     upsConfigInputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsFullBatteryGroup OBJECT IDENTIFIER ::= { upsFullGroups  2 }
+       OBJECT     upsConfigInputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsFullInputGroup OBJECT IDENTIFIER ::= { upsFullGroups  3 }
+       OBJECT     upsConfigOutputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsFullOutputGroup OBJECT IDENTIFIER ::= { upsFullGroups  4 }
+       OBJECT     upsConfigOutputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
 
-upsFullBypassGroup OBJECT IDENTIFIER ::= { upsFullGroups  5 }
+       OBJECT     upsConfigLowBattTime
+       DESCRIPTION
+               "Implementation of all possible values may be onerous
+               for some systems.  Consequently, not all possible
+               values must be supported.  However, at least two
+               different manufacturer-selected values must be
+               supported."
 
-upsFullAlarmGroup OBJECT IDENTIFIER ::= { upsFullGroups  6 }
+       ::= { upsCompliances 2 }
 
-upsFullTestGroup OBJECT IDENTIFIER ::= { upsFullGroups  7 }
+   upsFullCompliance MODULE-COMPLIANCE
+       STATUS     current
+       DESCRIPTION
+               "The compliance statement for UPSs that support
+               advanced full-featured functions."
+       MODULE -- this module
+           MANDATORY-GROUPS { upsFullIdentGroup, upsFullBatteryGroup,
+                     upsFullInputGroup, upsFullOutputGroup,
+                     upsFullAlarmGroup, upsFullTestGroup,
+                     upsFullControlGroup, upsFullConfigGroup }
 
-upsFullControlGroup OBJECT IDENTIFIER ::= { upsFullGroups  8 }
+       OBJECT     upsAlarmDescr
+       DESCRIPTION
+               "Support of all `well known' alarm types is not
+               required.  The well known alarm types which must be
+               supported are: upsAlarmBatteryBad, upsAlarmOnBattery,
+               upsAlarmLowBattery, upsAlarmDepletedBattery,
+               upsAlarmTempBad, upsAlarmInputBad, upsAlarmOnBypass,
+               upsAlarmBypassBad, upsAlarmOutputOffAsRequested,
+               upsAlarmUpsOffAsRequested, upsAlarmUpsOutputOff,
+               upsAlarmUpsSystemOff, upsAlarmGeneralFault,
+               upsAlarmDiagnosticTestFailed,
+               upsAlarmCommunicationsLost, upsAlarmShutdownPending,
+               and upsAlarmTestInProgress."
 
-upsFullConfigGroup OBJECT IDENTIFIER ::= { upsFullGroups  9 }
+       OBJECT     upsTestId
+       DESCRIPTION
+               "Support of all `well known' test types is not
+               required.  The well known test types which must be
+               supported are: upsTestNoTestsInitiated,
+               upsTestGeneralSystemsTest, and
+               upsTestQuickBatteryTest."
 
-END
+       OBJECT     upsOutputSource
+       SYNTAX     INTEGER {
+           normal(2),
+           battery(4)
+       }
+       DESCRIPTION
+               "Support of the values other(1), none(2), bypass(4),
+               booster(6) and reducer(7) is not required."
+
+           GROUP upsFullBypassGroup
+           DESCRIPTION
+               "The upsFullBypassGroup is only required for UPSs that
+               have a Bypass present."
+
+       OBJECT     upsShutdownType
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one shutdown type."
+
+       OBJECT     upsAutoRestart
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required, i.e., compliant
+               systems need not support more than one restart type."
+
+       OBJECT     upsConfigInputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
+
+       OBJECT     upsConfigInputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
+
+       OBJECT     upsConfigOutputVoltage
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
+
+       OBJECT     upsConfigOutputFreq
+       MIN-ACCESS read-only
+       DESCRIPTION
+               "Read-write access is not required."
+
+       OBJECT     upsConfigLowBattTime
+       DESCRIPTION
+               "Implementation of all possible values may be onerous
+               for some systems.  Consequently, not all possible
+               values must be supported.  However, at least two
+               different manufacturer-selected values must be
+               supported."
+
+       ::= { upsCompliances 3 }
+
+
+   --
+   -- units of conformance
+   --
+
+   -- summary at a glance:
+
+   --                                      subset  basic   adv
+   --upsIdentManufacturer                  x       x       x
+   --upsIdentModel                         x       x       x
+   --upsIdentUPSSoftwareVersion                    x       x
+   --upsIdentAgentSoftwareVersion          x       x       x
+   --upsIdentName                          x       x       x
+   --upsIdentAttachedDevices               x               x
+   --
+   --upsBatteryStatus                      x       x       x  notes
+   --upsSecondsOnBattery                   x       x       x
+   --upsEstimatedMinutesRemaining                          x
+   --upsEstimatedChargeRemaining                           x
+   --upsBatteryVoltage
+   --upsBatteryCurrent
+   --upsBatteryTemperature
+   --
+   --upsInputLineBads                      x       x       x
+   --upsInputNumLines                              x       x
+   --upsInputFrequency                             x       x
+   --upsInputVoltage                               x       x
+   --upsInputCurrent
+   --upsInputTruePower
+   --
+   --upsOutputSource                       x       x       x  notes
+   --upsOutputFrequency                            x       x
+   --upsOutputNumLines                             x       x
+   --upsOutputVoltage                              x       x
+   --upsOutputCurrent                                      x
+   --upsOutputPower                                        x
+   --upsOutputPercentLoad                                  x
+   --
+   --
+   --upsBypassFrequency                            x       x  notes
+   --upsBypassNumLines                             x       x
+   --upsBypassVoltage                              x       x
+   --upsBypassCurrent
+   --upsBypassPower
+   --
+   --
+   --upsAlarmsPresent                      x       x       x
+   --upsAlarmDescr                         x       x       x  notes
+   --upsAlarmTime                          x       x       x
+   --
+   --upsTestId                                     x       x  notes
+   --upsTestSpinLock                               x       x
+   --upsTestResultsSummary                         x       x
+   --upsTestResultsDetail                          x       x
+   --upsTestStartTime                              x       x
+   --upsTestElapsedTime                            x       x
+   --
+   --upsShutdownType                       x       x       x  notes
+   --upsShutdownAfterDelay                 x       x       x
+   --upsStartupAfterDelay                          x       x
+   --upsRebootWithDuration                         x       x
+   --upsAutoRestart                        x       x       x  notes
+   --
+   --upsConfigInputVoltage                 x       x       x  notes
+   --upsConfigInputFreq                    x       x       x  notes
+   --upsConfigOutputVoltage                x       x       x  notes
+   --upsConfigOutputFreq                   x       x       x  notes
+   --upsConfigOutputVA                     x       x       x
+   --upsConfigOutputPower                  x       x       x
+   --upsConfigLowBattTime                          x       x  notes
+   --upsConfigAudibleStatus                        x       x
+   --upsConfigLowVoltageTransferPoint
+   --upsConfigHighVoltageTransferPoint
+
+
+   -- units of conformance
+   upsGroups             OBJECT IDENTIFIER ::= { upsConformance 2 }
+
+   upsSubsetGroups       OBJECT IDENTIFIER ::= { upsGroups 1 }
+
+   upsSubsetIdentGroup OBJECT-GROUP
+       OBJECTS { upsIdentManufacturer, upsIdentModel,
+                 upsIdentAgentSoftwareVersion, upsIdentName,
+                 upsIdentAttachedDevices }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetIdentGroup defines objects which are
+               common across all UPSs which meet subset compliance.
+               Most devices which conform to the upsSubsetIdentGroup
+               will provide access to these objects via a proxy
+               agent.  If the proxy agent is compatible with multiple
+               UPS types, configuration of the proxy agent will
+               require specifying some of these values, either
+               individually, or as a group (perhaps through a table
+               lookup mechanism based on the UPS model number)."
+       ::= { upsSubsetGroups 1 }
+
+   upsSubsetBatteryGroup OBJECT-GROUP
+       OBJECTS { upsBatteryStatus, upsSecondsOnBattery }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetBatteryGroup defines the objects that
+               are common to battery groups of two-contact UPSs."
+       ::= { upsSubsetGroups 2 }
+
+   upsSubsetInputGroup OBJECT-GROUP
+       OBJECTS { upsInputLineBads }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetInputGroup defines the objects that are
+               common to the Input groups of two-contact UPSs."
+       ::= { upsSubsetGroups 3 }
+
+   upsSubsetOutputGroup OBJECT-GROUP
+       OBJECTS { upsOutputSource }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetOutputGroup defines the objects that are
+               common to the Output groups of two-contact UPSs."
+       ::= { upsSubsetGroups 4 }
+
+
+   -- { upsSubsetGroups 5 } is reserved for
+   -- future use (upsSubsetBypassGroup)
+
+   upsSubsetAlarmGroup OBJECT-GROUP
+       OBJECTS { upsAlarmsPresent, upsAlarmDescr, upsAlarmTime }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetAlarmGroup defines the objects that are
+               common to the Alarm groups of two-contact UPSs."
+       ::= { upsSubsetGroups 6 }
+
+   -- { upsSubsetGroups 7 } is reserved for
+   -- future use (upsSubsetTestGroup)
+
+   upsSubsetControlGroup OBJECT-GROUP
+       OBJECTS { upsShutdownType, upsShutdownAfterDelay,
+                     upsAutoRestart }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetControlGroup defines the objects that
+               are common to the Control groups of two-contact UPSs."
+       ::= { upsSubsetGroups 8 }
+
+   upsSubsetConfigGroup OBJECT-GROUP
+       OBJECTS { upsConfigInputVoltage, upsConfigInputFreq,
+                 upsConfigOutputVoltage, upsConfigOutputFreq,
+                 upsConfigOutputVA, upsConfigOutputPower }
+       STATUS  current
+       DESCRIPTION
+               "The upsSubsetConfigGroup defines the objects that are
+               common to the Config groups of two-contact UPSs."
+       ::= { upsSubsetGroups 9 }
+   upsBasicGroups        OBJECT IDENTIFIER ::= { upsGroups 2 }
+
+   upsBasicIdentGroup OBJECT-GROUP
+       OBJECTS { upsIdentManufacturer, upsIdentModel,
+                 upsIdentUPSSoftwareVersion,
+                 upsIdentAgentSoftwareVersion, upsIdentName }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicIdentGroup defines objects which are
+               common to the Ident group of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 1 }
+
+   upsBasicBatteryGroup OBJECT-GROUP
+       OBJECTS { upsBatteryStatus, upsSecondsOnBattery }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicBatteryGroup defines the objects that are
+               common to the battery groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 2 }
+
+   upsBasicInputGroup OBJECT-GROUP
+       OBJECTS { upsInputLineBads, upsInputNumLines,
+                 upsInputFrequency, upsInputVoltage }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicInputGroup defines the objects that are
+               common to the Input groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 3 }
+
+   upsBasicOutputGroup OBJECT-GROUP
+       OBJECTS { upsOutputSource, upsOutputFrequency,
+                 upsOutputNumLines, upsOutputVoltage }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicOutputGroup defines the objects that are
+               common to the Output groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 4 }
+
+   upsBasicBypassGroup OBJECT-GROUP
+       OBJECTS { upsBypassFrequency, upsBypassNumLines,
+                 upsBypassVoltage }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicBypassGroup defines the objects that are
+               common to the Bypass groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 5 }
+
+   upsBasicAlarmGroup OBJECT-GROUP
+       OBJECTS { upsAlarmsPresent, upsAlarmDescr, upsAlarmTime }
+       STATUS  current
+       DESCRIPTION
+
+               "The upsBasicAlarmGroup defines the objects that are
+               common to the Alarm  groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 6 }
+
+   upsBasicTestGroup OBJECT-GROUP
+       OBJECTS { upsTestId, upsTestSpinLock,
+                 upsTestResultsSummary, upsTestResultsDetail,
+                 upsTestStartTime, upsTestElapsedTime }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicTestGroup defines the objects that are
+               common to the Test groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 7 }
+
+   upsBasicControlGroup OBJECT-GROUP
+       OBJECTS { upsShutdownType, upsShutdownAfterDelay,
+                 upsStartupAfterDelay, upsRebootWithDuration,
+                 upsAutoRestart }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicControlGroup defines the objects that are
+               common to the Control groups of compliant UPSs which
+               support basic functions."
+       ::= { upsBasicGroups 8 }
+
+   upsBasicConfigGroup OBJECT-GROUP
+       OBJECTS { upsConfigInputVoltage, upsConfigInputFreq,
+                 upsConfigOutputVoltage, upsConfigOutputFreq,
+                 upsConfigOutputVA, upsConfigOutputPower,
+                 upsConfigLowBattTime, upsConfigAudibleStatus }
+       STATUS  current
+       DESCRIPTION
+               "The upsBasicConfigGroup defines the objects that are
+               common to the Config groups of UPSs which support
+               basic functions."
+       ::= { upsBasicGroups 9 }
+
+   upsFullGroups         OBJECT IDENTIFIER ::= { upsGroups 3 }
+
+   upsFullIdentGroup OBJECT-GROUP
+       OBJECTS { upsIdentManufacturer, upsIdentModel,
+                 upsIdentUPSSoftwareVersion,
+                 upsIdentAgentSoftwareVersion, upsIdentName,
+                 upsIdentAttachedDevices }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullIdentGroup defines objects which are
+               common to the Ident group of fully compliant UPSs."
+       ::= { upsFullGroups 1 }
+
+   upsFullBatteryGroup OBJECT-GROUP
+       OBJECTS { upsBatteryStatus, upsSecondsOnBattery,
+                 upsEstimatedMinutesRemaining,
+                 upsEstimatedChargeRemaining }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullBatteryGroup defines the objects that are
+               common to the battery groups of fully compliant UPSs."
+       ::= { upsFullGroups 2 }
+
+   upsFullInputGroup OBJECT-GROUP
+       OBJECTS { upsInputLineBads, upsInputNumLines,
+                 upsInputFrequency, upsInputVoltage }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullInputGroup defines the objects that are
+               common to the Input groups of fully compliant UPSs."
+       ::= { upsFullGroups 3 }
+
+   upsFullOutputGroup OBJECT-GROUP
+       OBJECTS { upsOutputSource, upsOutputFrequency,
+                 upsOutputNumLines, upsOutputVoltage,
+                 upsOutputCurrent, upsOutputPower,
+                 upsOutputPercentLoad }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullOutputGroup defines the objects that are
+               common to the Output groups of fully compliant UPSs."
+       ::= { upsFullGroups 4 }
+
+   upsFullBypassGroup OBJECT-GROUP
+       OBJECTS { upsBypassFrequency, upsBypassNumLines,
+                 upsBypassVoltage }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullBypassGroup defines the objects that are
+               common to the Bypass groups of fully compliant UPSs."
+       ::= { upsFullGroups 5 }
+
+   upsFullAlarmGroup OBJECT-GROUP
+       OBJECTS { upsAlarmsPresent, upsAlarmDescr, upsAlarmTime }
+       STATUS  current
+       DESCRIPTION
+
+               "The upsFullAlarmGroup defines the objects that are
+               common to the Alarm  groups of fully compliant UPSs."
+       ::= { upsFullGroups 6 }
+
+   upsFullTestGroup OBJECT-GROUP
+       OBJECTS { upsTestId, upsTestSpinLock,
+                 upsTestResultsSummary, upsTestResultsDetail,
+                 upsTestStartTime, upsTestElapsedTime }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullTestGroup defines the objects that are
+               common to the Test groups of fully compliant UPSs."
+       ::= { upsFullGroups 7 }
+
+   upsFullControlGroup OBJECT-GROUP
+       OBJECTS { upsShutdownType, upsShutdownAfterDelay,
+                 upsStartupAfterDelay, upsRebootWithDuration,
+                 upsAutoRestart }
+       STATUS  current
+       DESCRIPTION
+   "The upsFullControlGroup defines the objects that are
+   common to the Control groups of fully compliant UPSs."
+       ::= { upsFullGroups 8 }
+
+   upsFullConfigGroup OBJECT-GROUP
+       OBJECTS { upsConfigInputVoltage, upsConfigInputFreq,
+                 upsConfigOutputVoltage, upsConfigOutputFreq,
+                 upsConfigOutputVA, upsConfigOutputPower,
+                 upsConfigLowBattTime, upsConfigAudibleStatus }
+       STATUS  current
+       DESCRIPTION
+               "The upsFullConfigGroup defines the objects that are
+               common to the Config groups of fully compliant UPSs."
+       ::= { upsFullGroups 9 }
+
+   END
 
