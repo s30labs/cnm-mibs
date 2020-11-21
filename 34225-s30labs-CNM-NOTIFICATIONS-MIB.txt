@@ -83,6 +83,12 @@ cnmInfoMsg NOTIFICATION-TYPE
             La informacion de la misma se encuentra en los datos (TrapCode,TrapMsg)"
     ::= { cnmNotifBase 3 }
 
+-- --------------------------------------------------------
+cnmNotifUpMsg NOTIFICATION-TYPE
+    VARIABLES   { cnmNotifCode, cnmInfoMsg, cnmNotifKey }
+    DESCRIPTION
+            "Este trap se genera al arrancar/reiniciarse snmptrapd"
+    ::= { cnmNotifBase 50 }
 
 -- --------------------------------------------------------
 cnmNotifNoLinkSet NOTIFICATION-TYPE
